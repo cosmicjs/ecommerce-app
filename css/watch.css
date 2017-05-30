@@ -1,12 +1,11 @@
 .watch-header {
-    /*opacity: 1;*/
     background: rgba(255, 255, 255, 0.9);
-    transition: .3s;
+    transition: .1s;
     font-size: 1.3em;
 }
 
 .watch-header .page-header {
-    transition: .3s;
+    transition: .1s;
     margin-top: 15px;
     font-size: 1em !important;
 }

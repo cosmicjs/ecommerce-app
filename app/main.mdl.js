@@ -18,16 +18,25 @@
             'hl.sticky',
  
             'watch',
+            'cart',
             
             'config'
         ])
         .config(config)
         .run(run);
 
-    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'BUCKET_SLUG'];
-    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, BUCKET_SLUG) {
+    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'NotificationProvider'];
+    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, NotificationProvider) {
         cfpLoadingBarProvider.includeSpinner = false;
-        
+
+        NotificationProvider.setOptions({
+            startTop: 25,
+            startRight: 25,
+            verticalSpacing: 20,
+            horizontalSpacing: 20,
+            positionX: 'right',
+            positionY: 'bottom'
+        });
 
         $urlRouterProvider.otherwise(function ($injector) {
             var $state = $injector.get("$state");
@@ -51,7 +60,7 @@
                 url: '/',
                 abstract: true,
                 templateUrl: '../views/main.html',
-                // controller: 'UserCtrl as global',
+                controller: 'CartCtrl as cart',
                 data: {
                     is_granted: ['ROLE_GUEST']
                 }

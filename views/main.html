@@ -24,12 +24,15 @@
                     <a href="#">Contact</a>
                 </li>
             </ul>
-            <form class="navbar-form navbar-right">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="watchName">
-                </div>
-                <a ui-sref="main.watch.profile({slug: watchName})" class="btn btn-default">Search</a>
-            </form>
+            <!--<form class="navbar-form navbar-right">-->
+                <!--<div class="form-group">-->
+                    <!--<input type="text" class="form-control" placeholder="Search" ng-model="watchName">-->
+                <!--</div>-->
+                <!--<a ui-sref="main.watch.profile({slug: watchName})" class="btn btn-default">Search</a>-->
+            <!--</form>-->
+            <a ui-sref="main.cart" class="btn btn-primary navbar-btn navbar-right" ng-init="cart.getCart()">
+                <i class="fa fa-shopping-cart"></i> <span class="badge">{{cart.watches.length}}</span>
+            </a>
         </div>
         <!-- /.navbar-collapse -->
     </div>
@@ -47,8 +50,13 @@
     <!-- Footer -->
     <footer>
         <div class="row">
-            <div class="col-lg-12">
-                <p>Copyright &copy; Your Website 2014</p>
+            <div class="col-lg-4 text-left">
+                <span class="footer-logo">
+                    <img src="https://cosmicjs.com/images/logo.svg" width="28" height="28"> Proudly powered by Cosmic JS
+                </span>
+            </div>
+            <div class="col-lg-4 text-center">
+                <span class="">Copyright <i class="fa fa-copyright"></i> Ecommerce App 2017.</span>
             </div>
         </div>
     </footer>

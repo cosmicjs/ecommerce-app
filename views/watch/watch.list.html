@@ -27,9 +27,17 @@
                     <img ng-src="{{watch.metadata.images[0].metadata.image.url}}" alt="">
                     <div class="caption">
                         <h4 class="pull-right">${{watch.metadata.price}}</h4>
-                        <h4><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a>
-                        </h4>
+                        <h4><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></h4>
                         <p ng-bind-html="watch.content"></p>
+                    </div>
+                    <div class="caption-btn">
+                        <button ng-if="!cart.hasInCart(watch._id)" class="btn btn-primary btn-block btn-sm" ng-click="cart.addToCart(watch)"><i class="fa fa-cart-plus"></i> Add to Cart</button>
+                        <button ng-show="cart.hasInCart(watch._id) && !showRemove"
+                                ng-mouseenter="showRemove = true"
+                                class="btn btn-success btn-block btn-sm"><i class="fa fa-check-circle"></i> Added</button>
+                        <button ng-show="cart.hasInCart(watch._id) && showRemove"
+                                ng-mouseleave="showRemove = false"
+                                class="btn btn-danger btn-block btn-sm" ng-click="cart.removeFromCart(watch._id)"><i class="fa fa-remove"></i> Remove</button>
                     </div>
                     <!--<div class="ratings">-->
                         <!--<p class="pull-right">15 reviews</p>-->

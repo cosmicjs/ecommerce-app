@@ -18,16 +18,25 @@
             'hl.sticky',
  
             'watch',
+            'cart',
             
             'config'
         ])
         .config(config)
         .run(run);
 
-    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'BUCKET_SLUG'];
-    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, BUCKET_SLUG) {
+    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'NotificationProvider'];
+    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, NotificationProvider) {
         cfpLoadingBarProvider.includeSpinner = false;
-        
+
+        NotificationProvider.setOptions({
+            startTop: 25,
+            startRight: 25,
+            verticalSpacing: 20,
+            horizontalSpacing: 20,
+            positionX: 'right',
+            positionY: 'bottom'
+        });
 
         $urlRouterProvider.otherwise(function ($injector) {
             var $state = $injector.get("$state");
@@ -51,7 +60,7 @@
                 url: '/',
                 abstract: true,
                 templateUrl: '../views/main.html',
-                // controller: 'UserCtrl as global',
+                controller: 'CartCtrl as cart',
                 data: {
                     is_granted: ['ROLE_GUEST']
                 }
@@ -97,173 +106,6 @@
 
 })();
  
-(function () {
-    'use strict'; 
-
-    angular
-        .module('main')
-        .controller('AdminCtrl', UserCtrl);
-
-    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
-        var vm = this;
-        
-        vm.currentUser = $rootScope.globals.currentUser.metadata;
-        
-        vm.logout = logout;
-
-        function logout() {
-            function success(response) {
-                $state.go('auth');
-
-                $log.info(response);
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-
-            AuthService
-                .clearCredentials()
-                .then(success, failed);
-        }
-
-        $scope.state = $state;
-
-    }
-})();
-
-(function () {
-    'use strict';
-    
-    angular
-        .module('admin', [
-        ])
-        .config(config);
-
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
- 
-        $stateProvider
-            .state('admin', {
-                url: '/admin/',
-                abstract: false,
-                templateUrl: '../views/admin/admin.html',
-                controller: 'AdminCtrl as admin',
-                data: {
-                    is_granted: ['ROLE_ADMIN']
-                }
-            });
-    }
-    
-})();
- 
-(function () {
-    'use strict';
-
-    angular
-        .module('main')
-        .service('EventService', function ($http,
-                                          $cookieStore, 
-                                          $q, 
-                                          $rootScope, 
-                                          URL, BUCKET_SLUG, READ_KEY, WRITE_KEY, MEDIA_URL) {
-            
-            $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
-            this.getEvents = function () {
-                return $http.get(URL + BUCKET_SLUG + '/object-type/events', {
-                    params: {
-                        limit: 100,
-                        read_key: READ_KEY
-                    }
-                });
-            };
-            this.getEventsByUsername = function (username, ignoreLoadingBar) {
-                return $http.get(URL + BUCKET_SLUG + '/object-type/events/search',
-                    {
-                        ignoreLoadingBar: ignoreLoadingBar,
-                        params: {
-                            metafield_key: 'user',
-                            metafield_object_slug: username,
-                            limit: 10,
-                            read_key: READ_KEY
-                        }
-                    }
-                );
-            };
-            this.getEventById = function (slug) {
-                return $http.get(URL + BUCKET_SLUG + '/object/' + slug, {
-                    params: {
-                        read_key: READ_KEY
-                    }
-                });
-            };
-            this.updateEvent = function (event) {
-                event.write_key = WRITE_KEY;
-
-                return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
-            };
-            this.removeEvent = function (slug) {
-                return $http.delete(URL + BUCKET_SLUG + '/' + slug, {
-                    ignoreLoadingBar: true,
-                    headers:{
-                        'Content-Type': 'application/json'
-                    },
-                    data: {
-                        write_key: WRITE_KEY
-                    }
-                });
-            };
-            this.createEvent = function (event) {
-                event.write_key = WRITE_KEY;
-
-                var beginDate = new Date(event.metafields[1].value);
-                var endDate = new Date(event.metafields[2].value);
-
-                event.metafields[1].value = beginDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + beginDate.getDate();
-                event.metafields[2].value = endDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + endDate.getDate();
-
-                event.slug = event.title;
-                event.type_slug = 'events';
-
-                event.metafields[4] = {
-                    key: "user",
-                    type: "object",
-                    object_type: "users",
-                    value: $rootScope.globals.currentUser._id
-                };
-                return $http.post(URL + BUCKET_SLUG + '/add-object', event);
-            };
-            this.upload = function (file) {
-                var fd = new FormData(); 
-                fd.append('media', file);
-                fd.append('write_key', WRITE_KEY);
-
-                var defer = $q.defer();
-
-                var xhttp = new XMLHttpRequest();
-
-                xhttp.upload.addEventListener("progress",function (e) {
-                    defer.notify(parseInt(e.loaded * 100 / e.total));
-                });
-                xhttp.upload.addEventListener("error",function (e) {
-                    defer.reject(e);
-                });
-
-                xhttp.onreadystatechange = function() {
-                    if (xhttp.readyState === 4) {
-                        defer.resolve(JSON.parse(xhttp.response)); //Outputs a DOMString by default
-                    }
-                };
-
-                xhttp.open("post", MEDIA_URL, true);
-
-                xhttp.send(fd);
-                
-                return defer.promise;
-            }
-        });
-})();  
 (function () {
     'use strict'; 
 
@@ -453,6 +295,369 @@
                 }
 
                 return deferred.promise;
+            };
+        });  
+})();  
+(function () {
+    'use strict'; 
+
+    angular
+        .module('main')
+        .controller('AdminCtrl', UserCtrl);
+
+    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
+        var vm = this;
+        
+        vm.currentUser = $rootScope.globals.currentUser.metadata;
+        
+        vm.logout = logout;
+
+        function logout() {
+            function success(response) {
+                $state.go('auth');
+
+                $log.info(response);
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            AuthService
+                .clearCredentials()
+                .then(success, failed);
+        }
+
+        $scope.state = $state;
+
+    }
+})();
+
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin', [
+        ])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+ 
+        $stateProvider
+            .state('admin', {
+                url: '/admin/',
+                abstract: false,
+                templateUrl: '../views/admin/admin.html',
+                controller: 'AdminCtrl as admin',
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
+            });
+    }
+    
+})();
+ 
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .service('EventService', function ($http,
+                                          $cookieStore, 
+                                          $q, 
+                                          $rootScope, 
+                                          URL, BUCKET_SLUG, READ_KEY, WRITE_KEY, MEDIA_URL) {
+            
+            $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+            this.getEvents = function () {
+                return $http.get(URL + BUCKET_SLUG + '/object-type/events', {
+                    params: {
+                        limit: 100,
+                        read_key: READ_KEY
+                    }
+                });
+            };
+            this.getEventsByUsername = function (username, ignoreLoadingBar) {
+                return $http.get(URL + BUCKET_SLUG + '/object-type/events/search',
+                    {
+                        ignoreLoadingBar: ignoreLoadingBar,
+                        params: {
+                            metafield_key: 'user',
+                            metafield_object_slug: username,
+                            limit: 10,
+                            read_key: READ_KEY
+                        }
+                    }
+                );
+            };
+            this.getEventById = function (slug) {
+                return $http.get(URL + BUCKET_SLUG + '/object/' + slug, {
+                    params: {
+                        read_key: READ_KEY
+                    }
+                });
+            };
+            this.updateEvent = function (event) {
+                event.write_key = WRITE_KEY;
+
+                return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
+            };
+            this.removeEvent = function (slug) {
+                return $http.delete(URL + BUCKET_SLUG + '/' + slug, {
+                    ignoreLoadingBar: true,
+                    headers:{
+                        'Content-Type': 'application/json'
+                    },
+                    data: {
+                        write_key: WRITE_KEY
+                    }
+                });
+            };
+            this.createEvent = function (event) {
+                event.write_key = WRITE_KEY;
+
+                var beginDate = new Date(event.metafields[1].value);
+                var endDate = new Date(event.metafields[2].value);
+
+                event.metafields[1].value = beginDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + beginDate.getDate();
+                event.metafields[2].value = endDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + endDate.getDate();
+
+                event.slug = event.title;
+                event.type_slug = 'events';
+
+                event.metafields[4] = {
+                    key: "user",
+                    type: "object",
+                    object_type: "users",
+                    value: $rootScope.globals.currentUser._id
+                };
+                return $http.post(URL + BUCKET_SLUG + '/add-object', event);
+            };
+            this.upload = function (file) {
+                var fd = new FormData(); 
+                fd.append('media', file);
+                fd.append('write_key', WRITE_KEY);
+
+                var defer = $q.defer();
+
+                var xhttp = new XMLHttpRequest();
+
+                xhttp.upload.addEventListener("progress",function (e) {
+                    defer.notify(parseInt(e.loaded * 100 / e.total));
+                });
+                xhttp.upload.addEventListener("error",function (e) {
+                    defer.reject(e);
+                });
+
+                xhttp.onreadystatechange = function() {
+                    if (xhttp.readyState === 4) {
+                        defer.resolve(JSON.parse(xhttp.response)); //Outputs a DOMString by default
+                    }
+                };
+
+                xhttp.open("post", MEDIA_URL, true);
+
+                xhttp.send(fd);
+                
+                return defer.promise;
+            }
+        });
+})();  
+(function () {
+    'use strict'; 
+
+    angular
+        .module('main')
+        .controller('CartCtrl', CartCtrl);
+
+    function CartCtrl(CartService, WatchService, Notification, $log, MEDIA_URL, $state) {
+        var vm = this;
+
+        vm.addToCart = addToCart;
+        vm.getCart = getCart;
+        vm.hasInCart = hasInCart;
+        vm.removeFromCart = removeFromCart;
+
+        vm.cart = {};
+        vm.watches = [];
+        vm.totalPrice = 0;
+
+        function addToCart(item) {
+            function success(response) {
+                Notification.success(response);
+                getCart();
+
+            }
+
+            function failed(response) {
+                Notification.error(response);
+            }
+
+            CartService
+                .addToCart(item)
+                .then(success, failed);
+
+        }
+
+        function removeFromCart(_id) {
+            function success(response) {
+                Notification.success(response);
+                getCart();
+            }
+
+            function failed(response) {
+                Notification.error(response);
+            }
+
+            CartService
+                .removeFromCart(_id)
+                .then(success, failed);
+
+        }
+
+        function hasInCart(_id) {
+            return CartService.hasInCart(_id);
+        }
+
+        function getCart() {
+            function success(response) {
+                vm.cart = response;
+                getWatches();
+
+                $log.info(response);
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            CartService
+                .getCart()
+                .then(success, failed);
+
+        }
+
+        function getWatches() {
+            function success(response) {
+                $log.info(response);
+
+                vm.watches = [];
+                vm.totalPrice = 0;
+
+                for (var _id in vm.cart)
+                    response.data.objects.forEach(function (item) {
+                        if (item._id === _id) {
+                            vm.watches.push(item);
+                            vm.totalPrice += item.metadata.price;
+                        }
+                    });
+
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            WatchService
+                .getWatches({})
+                .then(success, failed);
+
+        }
+
+
+
+    }
+})();
+
+(function () {
+    'use strict';
+    
+    angular
+        .module('cart', [])
+        .config(config); 
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+ 
+        $stateProvider
+            .state('main.cart', {
+                url: 'cart',
+                templateUrl: '../views/cart/cart.html'
+            });
+    }
+})();
+ 
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .service('CartService', function ($http, 
+                                          $cookieStore, 
+                                          $q, 
+                                          $rootScope,
+                                          URL, BUCKET_SLUG, READ_KEY, WRITE_KEY) {
+            var that = this;
+            $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            
+            that.addToCart = function (item) {
+                var deferred = $q.defer();
+
+                var cart = $cookieStore.get('cart');
+                cart = cart ? cart : {};
+
+                if (!(item._id in cart)) {
+                    cart[item._id] = item._id;
+
+                    $cookieStore.put('cart', cart);
+
+                    deferred.resolve('Added to cart');
+                } else {
+                    deferred.reject('Error: Can\'t added to cart');
+                }
+
+                return deferred.promise;
+            };
+
+            that.getCart = function () {
+                var deferred = $q.defer();
+                var cart = $cookieStore.get('cart');
+
+                if (cart) {
+                    deferred.resolve(cart);
+                } else {
+                    deferred.reject('Error: Can\'t get cart');
+                }
+
+                return deferred.promise;
+            };
+
+            that.removeFromCart = function (_id) {
+                var deferred = $q.defer();
+
+                var cart = $cookieStore.get('cart');
+                cart = cart ? cart : {};
+
+                if (_id in cart) {
+                    delete cart[_id];
+
+                    $cookieStore.put('cart', cart);
+
+                    deferred.resolve('Removed from cart');
+                } else {
+                    deferred.reject('Error: Can\'t remove from cart');
+                }
+
+                return deferred.promise;
+            };
+
+            that.hasInCart = function (_id) {
+                var cart = $cookieStore.get('cart');
+                cart = cart ? cart : {};
+
+                return _id in cart;
             };
         });  
 })();  

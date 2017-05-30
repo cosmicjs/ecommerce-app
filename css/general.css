@@ -20,6 +20,10 @@ body {
     overflow: hidden;
 }
 
+.caption-btn {
+    margin: 10px;
+}
+
 .caption h4 {
     white-space: nowrap;
 }
@@ -29,8 +33,7 @@ body {
 }
 
 .ratings {
-    padding-right: 10px;
-    padding-left: 10px;
+
     color: #d17581;
 }
 
