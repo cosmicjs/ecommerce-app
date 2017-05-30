@@ -1,0 +1,50 @@
+<div class="row" ng-init="vm.getWatches()">
+
+    <div class="col-md-3">
+        <p class="lead">Brands</p>
+        <div class="list-group">
+            <a class="list-group-item" ui-sref="main.watch" ui-sref-opts="{inherit: false}">All</a>
+            <a class="list-group-item" ng-class="{'active': brand === vm.params.brand}" ng-repeat="brand in vm.brands" ui-sref="main.watch({key: 'brand', value: brand})">{{brand}} <i ng-if="brand === vm.params.value" class="fa fa-check"></i></a>
+        </div>
+        <p class="lead">Colors</p>
+        <div class="list-group">
+            <a class="list-group-item" ui-sref="main.watch" ui-sref-opts="{inherit: false}">All</a>
+            <a class="list-group-item" ng-class="{'active': color === vm.params.color}" ng-repeat="color in vm.colors" ui-sref="main.watch({key: 'color', value: color})">{{color}} <i ng-if="color === vm.params.value" class="fa fa-check"></i></a>
+        </div>
+        <p class="lead">Categories</p>
+        <div class="list-group">
+            <a class="list-group-item" ui-sref="main.watch" ui-sref-opts="{inherit: false}">All</a>
+            <a class="list-group-item" ng-class="{'active': category === vm.params.category}" ng-repeat="category in vm.categories" ui-sref="main.watch({key: 'category', value: category})">{{category}} <i ng-if="category === vm.params.value" class="fa fa-check"></i></a>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+
+        <div class="row">
+
+            <div class="col-sm-4 col-lg-4 col-md-4" ng-repeat="watch in vm.watches">
+                <div class="thumbnail" ng-init="watch.metadata.category">
+                    <img ng-src="{{watch.metadata.images[0].metadata.image.url}}" alt="">
+                    <div class="caption">
+                        <h4 class="pull-right">${{watch.metadata.price}}</h4>
+                        <h4><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a>
+                        </h4>
+                        <p ng-bind-html="watch.content"></p>
+                    </div>
+                    <!--<div class="ratings">-->
+                        <!--<p class="pull-right">15 reviews</p>-->
+                        <!--<p>-->
+                            <!--<span class="glyphicon glyphicon-star"></span>-->
+                            <!--<span class="glyphicon glyphicon-star"></span>-->
+                            <!--<span class="glyphicon glyphicon-star"></span>-->
+                            <!--<span class="glyphicon glyphicon-star"></span>-->
+                            <!--<span class="glyphicon glyphicon-star"></span>-->
+                        <!--</p>-->
+                    <!--</div>-->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

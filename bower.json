@@ -1,0 +1,45 @@
+{
+  "name": "ecommerce-app",
+  "description": "Ecommerce App",
+  "version": "0.0.0",
+  "homepage": "https://github.com/kutsaniuk/ecommerce-app",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.4.x",
+    "angular-mocks": "~1.4.x",
+    "angular-bootstrap": "~1.1.x",
+    "angular-cookies": "~1.4.x",
+    "angular-route": "~1.4.x",
+    "angular-ui-router": "0.2.x",
+    "angular-resource": "1.4.x",
+    "angular-animate": "~1.4.x",
+    "ng-dialog": "0.6.1",
+    "bootstrap": "3.3.x",
+    "cr-acl": "",
+    "angular-chosen-localytics": "*",
+    "bootstrap-chosen": "*",
+    "ng-flow": "^2.7.4",
+    "angular-mask": "*",
+    "checklist-model": "0.9.0",
+    "angular-ui-notification": "^0.2.0",
+    "angular-ui-calendar": "^1.0.2",
+    "angular-ui-switch": "^0.1.1",
+    "ng-scrollbars": "^0.0.11",
+    "jquery.scrollbar": "*",
+    "angular-nvd3": "*",
+    "infinity-angular-chosen": "^0.2.0",
+    "angular-flash-alert": "^2.4.0",
+    "components-font-awesome": "^4.7.0",
+    "textAngular": "^1.5.16",
+    "angular-loading-bar": "^0.9.0",
+    "angular-environment": "^1.0.8",
+    "angular-sticky": "angular-sticky-plugin#^0.3.0"
+  },
+  "resolutions": {
+    "angular": "~1.4.x"
+  },
+  "devDependencies": {
+    "cr-acl": "^0.5.0"
+  }
+}

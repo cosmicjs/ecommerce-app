@@ -1,0 +1,1140 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-offset-2 col-md-8">
+            <h2>
+                How to Build an Events App Using AngularJS
+            </h2>
+            <hr>
+            <img src="/dist/img/for-blog.png" class="img-responsive">
+            <br>
+            <p>
+                In this tutorial I'm going to show you how to create a "Events" app using a little bit of Node, and Cosmic JS. For the sake of understanding how to consume Restful API’s, this tutorial will show how to make simple AJAX requests to the Cosmic JS API in order to retrieve, update, and delete data in our Cosmic JS buckets. Let's get started.
+            </p>
+            <h2>TL;DR</h2>
+            <p>
+                <a href="https://github.com/kutsaniuk/events-app">Download the GitHub repo.</a><br>
+                <a href="http://events.cosmicapp.co">Check out the demo.</a>
+            </p>
+            <h2>Getting Started:</h2>
+            <p>
+                First, let’s make a new directory to build our project in and lets also make a package.json file.
+            </p>
+            <pre>mkdir events-app</pre>
+            <pre>events-app$ touch package.json</pre>
+            <p>
+                Now, in your package.json, copy and paste the code below:
+            </p>
+            <pre>
+//events-app/package.json
+{
+  "name": "events-app",
+  "version": "1.0.0",
+  "main": "app-server.js",
+  "engines": {
+    "node": "4.1.2",
+    "npm": "3.5.2"
+  },
+  "description": "",
+  "dependencies": {
+    "bower": "^1.7.7",
+    "http-server": "^0.9.0",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-concat-css": "^2.2.0",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-webserver": "^0.9.1",
+    "wiredep": "^3.0.0",
+    "express": "^4.13.3"
+  },
+  "scripts": {
+    "postinstall": "bower install",
+    "start": "npm run production",
+    "production": "node app-server.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
+            </pre>
+            <p>
+                Second, let’s make a bower.json file.
+            </p>
+            <pre>events-app$ touch bower.json</pre>
+            <p>
+                Now, in your bower.json, copy and paste the code below:
+            </p>
+            <pre>
+//events-app/bower.json
+{
+  "name": "events-app",
+  "description": "Events App",
+  "version": "0.0.0",
+  "homepage": "https://github.com/kutsaniuk/events-app",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.4.x",
+    "angular-mocks": "~1.4.x",
+    "angular-bootstrap": "~1.1.x",
+    "angular-cookies": "~1.4.x",
+    "angular-route": "~1.4.x",
+    "angular-ui-router": "0.2.x",
+    "angular-resource": "1.4.x",
+    "angular-animate": "~1.4.x",
+    "ng-dialog": "0.6.1",
+    "bootstrap": "3.3.x",
+    "cr-acl": "",
+    "angular-chosen-localytics": "*",
+    "bootstrap-chosen": "*",
+    "ng-flow": "^2.7.4",
+    "angular-mask": "*",
+    "checklist-model": "0.9.0",
+    "angular-ui-notification": "^0.2.0",
+    "angular-ui-calendar": "^1.0.2",
+    "angular-ui-switch": "^0.1.1",
+    "ng-scrollbars": "^0.0.11",
+    "jquery.scrollbar": "*",
+    "angular-nvd3": "*",
+    "infinity-angular-chosen": "^0.2.0",
+    "angular-flash-alert": "^2.4.0",
+    "components-font-awesome": "^4.7.0",
+    "textAngular": "^1.5.16",
+    "angular-loading-bar": "^0.9.0"
+  },
+  "resolutions": {
+    "angular": "~1.4.x"
+  },
+  "devDependencies": {
+    "cr-acl": "^0.5.0"
+  }
+}
+            </pre>
+            <p>
+                Config app server:
+            </p>
+            <pre>events-app$ touch app-server.js</pre>
+            <pre>
+//events-app/app-server.js
+var express = require('express')
+var app = express()
+app.set('port', process.env.PORT || 3000)
+app.use(express.static(__dirname))
+var http = require('http').Server(app)
+// Route
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html')
+})
+http.listen(app.get('port'), () => {
+  console.log('Wedding Site listening on ' + app.get('port'))
+})
+            </pre>
+            <h2>What we're installing and why:</h2>
+            <ol>
+                <li>We're going to use the AngularJS framework to build Single-page application</li>
+                <li>We're installing angular-ui-router for create multi views.</li>
+                <li>We are going to use gulp for build all js and css files into one file.</li>
+            </ol>
+            <h2>Building our app:</h2>
+            <p>
+                Now we're going to build out our file structure a bit more so that we can organize our angular modules and js files. This is what our events-app directory should look like:
+            </p>
+            <pre>
+events-app
+|----app
+|       |----auth
+|                 |----auth.ctrl.js
+|                 |----auth.service.js
+|       |----config
+|                 |----config.js
+|       |----event
+|                 |----add
+|                           |----event.add.ctrl.js
+|                           |----event.add.mdl.js
+|                 |----feed
+|                           |----event.feed.ctrl.js
+|                           |----event.feed.mdl.js
+|                 |----profile
+|                           |----event.profile.ctrl.js
+|                           |----event.profile.mdl.js
+|                 |----event.ctrl.js
+|                 |----event.mdl.js
+|                 |----event.service.js
+|       |----user
+|                 |----profile
+|                           |----user.profile.ctrl.js
+|                           |----user.profile.mdl.js
+|                 |----settings
+|                           |----user.settings.ctrl.js
+|                           |----user.settings.mdl.js
+|                 |----user.ctrl.js
+|                 |----user.mdl.js
+|                 |----user.service.js
+|       |----main.mdl.js
+|----dist
+|       |----css
+|       |----img
+|       |----js
+|----css
+|----views
+|----gulpfile.js
+|----app-server.js
+|----bower.json
+|----package.json
+            </pre>
+            <p>
+                Now we we will set up our index.html. Copy and paste the following code into your index.html file:
+            </p>
+            <pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en" ng-app="main"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta http-equiv="X-UA-Compatible" content="IE=edge"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;meta name="description" content=""&gt;
+    &lt;meta name="author" content=""&gt;
+
+    &lt;title&gt;Events App&lt;/title&gt;
+
+    &lt;!-- bower:css --&gt;
+    &lt;!-- endbower --&gt;
+
+    &lt;!-- Bootstrap Core CSS --&gt;
+    &lt;link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+
+    &lt;!-- Custom CSS --&gt;
+
+    &lt;link href="dist/css/main.min.css" rel="stylesheet"&gt;
+
+
+    &lt;!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --&gt;
+    &lt;!-- WARNING: Respond.js doesn't work if you view the page via file:// --&gt;
+    &lt;!--[if lt IE 9]&gt;
+    &lt;script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"&gt;&lt;/script&gt;
+    &lt;script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"&gt;&lt;/script&gt;
+    &lt;![endif]--&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div ui-view&gt;&lt;/div&gt;
+
+&lt;!-- bower:js --&gt;
+&lt;!-- endbower --&gt;
+
+&lt;script src="dist/js/main.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+            </pre>
+            <p>
+                Here, we are going to target our "root" view to place our angular modules in later.
+                The main.js file located in our dist directory is what our gulpfile.js file will spit out after bundling all of our angular modules Now,
+                set up our gulpfile.js file to bundle all of our js files and export that bundle file to our dist directory.
+                Copy the following code into your gulpfile.js file:
+            </p>
+            <pre>
+//events-app/gulpfile.js
+'use strict';
+
+var gulp = require('gulp'),
+    webserver = require('gulp-webserver'),
+    minifyCSS = require('gulp-minify-css'),
+    concatCss = require('gulp-concat-css'),
+    concat = require('gulp-concat'),
+    wiredep = require('wiredep').stream,
+    autoprefixer = require('gulp-autoprefixer');
+
+gulp.task('css', function () {
+  return gulp.src('css/**/*.css')
+    .pipe(minifyCSS())
+    .pipe(concat('main.min.css'))
+    .pipe(autoprefixer())
+    .pipe(gulp.dest('dist/css'));
+});
+
+gulp.task('js', function() {
+  return gulp.src('app/**/**/*.js')
+    .pipe(concat('main.js'))
+    .pipe(gulp.dest('dist/js/'));
+});
+
+gulp.task('default', function () {
+  gulp.watch('css/**/*.css', ['css']);
+  gulp.watch('app/**/**/*.js', ['js']);
+  gulp.watch('bower.json', ['bower']);
+});
+
+gulp.task('bower', function () {
+  gulp.src('index.html')
+    .pipe(wiredep({
+      directory: 'bower_components'
+    }))
+    .pipe(gulp.dest(''));
+});
+            </pre>
+            <p>
+                After that we can create config.js. Copy and paste the following code into your index.html file:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    var app = angular
+                .module('main');
+
+    app.constant('BUCKET_SLUG', 'your-bucket-slug');
+    app.constant('URL', 'https://api.cosmicjs.com/v1/');
+    app.constant('MEDIA_URL', 'https://api.cosmicjs.com/v1/your-bucket-slug/media');
+    app.constant('READ_KEY', 'your-read-key');
+    app.constant('WRITE_KEY', 'your-write-key');
+    app.constant('DEFAULT_EVENT_IMAGE', 'url-image');
+
+})();
+            </pre>
+            <p>
+                After that we can create main module. Copy and paste the following code into your index.html file:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('main', [
+            'ui.router',
+            'ui.bootstrap',
+            'ngMask',
+            'ngCookies',
+            'ngRoute',
+            'ngDialog',
+            'cr.acl',
+            'ui-notification',
+            'ngFlash',
+            'textAngular',
+            'flow',
+            'angular-loading-bar',
+
+            'event',
+            'user'
+        ])
+        .config(config)
+        .run(run);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'WRITE_KEY'];
+    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, WRITE_KEY) {
+        cfpLoadingBarProvider.includeSpinner = false;
+
+        $urlRouterProvider.otherwise(function ($injector) {
+            var $state = $injector.get("$state");
+            var $location = $injector.get("$location");
+            var crAcl = $injector.get("crAcl");
+
+            var state = "";
+
+            switch (crAcl.getRole()) {
+                case 'ROLE_USER':
+                    state = 'main.event.feed';
+                    break;
+            }
+
+            if (state) $state.go(state);
+            else $location.path('/login');
+        });
+
+        $stateProvider
+            .state('main', {
+                url: '/',
+                abstract: true,
+                templateUrl: '../views/main.html',
+                controller: 'UserCtrl as global',
+                data: {
+                    is_granted: ['ROLE_USER']
+                }
+            })
+            .state('auth', {
+                url: '/login',
+                templateUrl: '../views/auth/login.html',
+                controller: 'AuthCtrl as auth',
+                onEnter: ['AuthService', function(AuthService) {
+                    AuthService.clearCredentials();
+                }],
+                data: {
+                    is_granted: ['ROLE_GUEST']
+                }
+            });
+    }
+
+    run.$inject = ['$rootScope', '$cookieStore', '$http', 'crAcl', 'AuthService'];
+    function run($rootScope, $cookieStore, $http, crAcl, AuthService) {
+
+        $rootScope.globals = $cookieStore.get('globals') || {};
+        $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+        crAcl
+            .setInheritanceRoles({
+                'ROLE_SUPER_ADMIN': ['ROLE_SUPER_ADMIN', 'ROLE_GUEST'],
+                'ROLE_USER': ['ROLE_USER', 'ROLE_GUEST'],
+                'ROLE_GUEST': ['ROLE_GUEST']
+            });
+
+        crAcl
+            .setRedirect('auth');
+
+        if ($rootScope.globals.currentUser) {
+
+            crAcl.setRole($rootScope.globals.currentUser.metadata.role);
+        }
+        else {
+            crAcl.setRole();
+        }
+
+    }
+
+})();
+            </pre>
+            <p>
+                Now we we will set up our Auth Controller. Copy and paste the following code into your auth.ctrl.js file:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .controller('AuthCtrl', AuthCtrl);
+
+    function AuthCtrl(crAcl, $state, AuthService, Flash, $log) {
+        var vm = this;
+
+        vm.login = login;
+        vm.register = register;
+
+        vm.showRegisterForm = false;
+
+        vm.loginForm = null;
+        vm.registerForm = null;
+
+        vm.credentials = {};
+        vm.user = {};
+
+        function login(credentials) {
+            function success(response) {
+                function success(response) {
+                    if (response.data.status !== 'empty') {
+                        var currentUser = response.data.objects[0];
+
+                        crAcl.setRole(currentUser.metadata.role);
+                        AuthService.setCredentials(currentUser);
+                        $state.go('main.event.feed');
+                    }
+                    else
+                        Flash.create('danger', 'Incorrect username or password');
+                }
+
+                function failed(response) {
+                    $log.error(response);
+                }
+
+                if (response.data.status !== 'empty')
+                    AuthService
+                        .checkPassword(credentials)
+                        .then(success, failed);
+                else
+                    Flash.create('danger', 'Incorrect username or password');
+
+                $log.info(response);
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            if (vm.loginForm.$valid)
+                AuthService
+                    .checkUsername(credentials)
+                    .then(success, failed);
+        }
+
+        function register(credentials) {
+            function success(response) {
+                $log.info(response);
+
+                var currentUser = response.data.object.metafields;
+
+                Flash.create('success', 'You have successfully signed up!');
+                vm.credentials = {
+                    username: currentUser[0].value,
+                    password: currentUser[3].value
+                };
+                vm.showRegisterForm = false;
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            if (vm.registerForm.$valid)
+                AuthService
+                    .register(credentials)
+                    .then(success, failed);
+        }
+
+    }
+})();
+            </pre>
+            <p>
+                Create Auth Service, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .service('AuthService', function ($http,
+                                          $cookieStore,
+                                          $q,
+                                          $rootScope,
+                                          URL, BUCKET_SLUG, READ_KEY, WRITE_KEY) {
+            var authService = this;
+            $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+            authService.checkUsername = function (credentials) {
+                return $http.get(URL + BUCKET_SLUG + '/object-type/users/search', {
+                    params: {
+                        metafield_key: 'username',
+                        metafield_value_has: credentials.username,
+                        limit: 1,
+                        read_key: READ_KEY
+                    }
+                });
+            };
+            authService.checkPassword = function (credentials) {
+                return $http.get(URL + BUCKET_SLUG + '/object-type/users/search', {
+                    ignoreLoadingBar: true,
+                    params: {
+                        metafield_key: 'password',
+                        metafield_value: credentials.password,
+                        limit: 1,
+                        read_key: READ_KEY
+                    }
+                });
+            };
+            authService.register = function (user) {
+
+                return $http.post(URL + BUCKET_SLUG + '/add-object', {
+                    title: user.full_name,
+                    type_slug: 'users',
+                    slug: user.username,
+                    metafields: [
+                        {
+                            key: "username",
+                            type: "text",
+                            value: user.username
+                        },
+                        {
+                            key: "email",
+                            type: "text",
+                            value: user.email
+                        },
+                        {
+                            key: "full_name",
+                            type: "text",
+                            value: user.full_name
+                        },
+                        {
+                            key: "password",
+                            type: "text",
+                            value: user.password
+                        },
+                        {
+                            key: "image",
+                            type: "file",
+                            value: "3b2180f0-2c40-11e7-85ac-e98751218524-1493421969_male.png"
+                        },
+                        {
+                            key: "role",
+                            type: "radio-buttons",
+                            options: [
+                                {
+                                    value: "ROLE_USER"
+                                },
+                                {
+                                    value: "ROLE_SUPER_ADMIN"
+                                }
+                            ],
+                            value: "ROLE_USER"
+                        }
+                    ],
+
+                    write_key: WRITE_KEY
+                });
+            };
+            authService.setCredentials = function (user) {
+                $rootScope.globals = {
+                    currentUser: user
+                };
+
+                $cookieStore.put('globals', $rootScope.globals);
+            };
+            authService.clearCredentials = function () {
+                var deferred = $q.defer();
+                $cookieStore.remove('globals');
+
+                if (!$cookieStore.get('globals')) {
+                    $rootScope.globals = {};
+                    deferred.resolve('Credentials clear success');
+                } else {
+                    deferred.reject('Can\'t clear credentials');
+                }
+
+                return deferred.promise;
+            };
+        });
+})();
+            </pre>
+            <h2>
+                What's going on here:
+            </h2>
+            <ol>
+                <li>We are using the ui-router for config routes.</li>
+                <li>We created Auth Service for our asynchronous calls to our Cosmic JS API.</li>
+                <li>We created Auth Controller for checking credentials.</li>
+            </ol>
+            <p>
+                Create User Service for get and update User, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .service('UserService', function ($http,
+                                          $cookieStore,
+                                          $q,
+                                          $rootScope,
+                                          URL, BUCKET_SLUG, READ_KEY, WRITE_KEY) {
+            $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+            this.getCurrentUser = function (ignoreLoadingBar) {
+                return $http.get(URL + BUCKET_SLUG + '/object/' + $rootScope.globals.currentUser.slug, {
+                    ignoreLoadingBar: ignoreLoadingBar,
+                    params: {
+                        read_key: READ_KEY
+                    }
+                });
+            };
+            this.getUser = function (slug, ignoreLoadingBar) {
+                return $http.get(URL + BUCKET_SLUG + '/object/' + slug, {
+                    ignoreLoadingBar: ignoreLoadingBar,
+                    params: {
+                        read_key: READ_KEY
+                    }
+                });
+            };
+            this.updateUser = function (user) {
+                user.write_key = WRITE_KEY;
+
+                return $http.put(URL + BUCKET_SLUG + '/edit-object', user, {
+                    ignoreLoadingBar: false
+                });
+            };
+
+        });
+})();
+            </pre>
+            <p>
+                Create User Controller for get current user and log out, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .controller('UserCtrl', UserCtrl);
+
+    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
+        var vm = this;
+
+        vm.currentUser = $rootScope.globals.currentUser.metadata;
+
+        vm.logout = logout;
+
+        function logout() {
+            function success(response) {
+                $state.go('auth');
+
+                $log.info(response);
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            AuthService
+                .clearCredentials()
+                .then(success, failed);
+        }
+
+        $scope.state = $state;
+
+    }
+})();
+            </pre>
+            <p>
+                Create User Module, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('user', [
+            'user.profile',
+            'user.settings'
+        ])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+
+        $stateProvider
+            .state('main.user', {
+                url: 'user',
+                abstract: true,
+                data: {
+                    is_granted: ['ROLE_USER']
+                }
+            });
+    }
+})();
+            </pre>
+            <h2>
+                What's going on here:
+            </h2>
+            <ol>
+                <li>We created User Service for our asynchronous calls to our Cosmic JS API.</li>
+                <li>We created User Controller for getting current user and logout.</li>
+            </ol>
+            <p>
+                Create Event Service for get, update, add delete Events from Cosmic JS API, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .service('EventService', function ($http,
+                                          $cookieStore,
+                                          $q,
+                                          $rootScope,
+                                          URL, BUCKET_SLUG, READ_KEY, WRITE_KEY, MEDIA_URL) {
+
+            $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+            this.getEvents = function () {
+                return $http.get(URL + BUCKET_SLUG + '/object-type/events', {
+                    params: {
+                        limit: 100,
+                        read_key: READ_KEY
+                    }
+                });
+            };
+            this.getEventsByUsername = function (username, ignoreLoadingBar) {
+                return $http.get(URL + BUCKET_SLUG + '/object-type/events/search',
+                    {
+                        ignoreLoadingBar: ignoreLoadingBar,
+                        params: {
+                            metafield_key: 'user',
+                            metafield_object_slug: username,
+                            limit: 10,
+                            read_key: READ_KEY
+                        }
+                    }
+                );
+            };
+            this.getEventById = function (slug) {
+                return $http.get(URL + BUCKET_SLUG + '/object/' + slug, {
+                    params: {
+                        read_key: READ_KEY
+                    }
+                });
+            };
+            this.updateEvent = function (event) {
+                event.write_key = WRITE_KEY;
+
+                return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
+            };
+            this.removeEvent = function (slug) {
+                return $http.delete(URL + BUCKET_SLUG + '/' + slug, {
+                    ignoreLoadingBar: true,
+                    headers:{
+                        'Content-Type': 'application/json'
+                    },
+                    data: {
+                        write_key: WRITE_KEY
+                    }
+                });
+            };
+            this.createEvent = function (event) {
+                event.write_key = WRITE_KEY;
+
+                var beginDate = new Date(event.metafields[1].value);
+                var endDate = new Date(event.metafields[2].value);
+
+                event.metafields[1].value = beginDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + beginDate.getDate();
+                event.metafields[2].value = endDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + endDate.getDate();
+
+                event.slug = event.title;
+                event.type_slug = 'events';
+
+                event.metafields[4] = {
+                    key: "user",
+                    type: "object",
+                    object_type: "users",
+                    value: $rootScope.globals.currentUser._id
+                };
+                return $http.post(URL + BUCKET_SLUG + '/add-object', event);
+            };
+            this.upload = function (file) {
+                var fd = new FormData();
+                fd.append('media', file);
+                fd.append('write_key', WRITE_KEY);
+
+                var defer = $q.defer();
+
+                var xhttp = new XMLHttpRequest();
+
+                xhttp.upload.addEventListener("progress",function (e) {
+                    defer.notify(parseInt(e.loaded * 100 / e.total));
+                });
+                xhttp.upload.addEventListener("error",function (e) {
+                    defer.reject(e);
+                });
+
+                xhttp.onreadystatechange = function() {
+                    if (xhttp.readyState === 4) {
+                        defer.resolve(JSON.parse(xhttp.response)); //Outputs a DOMString by default
+                    }
+                };
+
+                xhttp.open("post", MEDIA_URL, true);
+
+                xhttp.send(fd);
+
+                return defer.promise;
+            }
+        });
+})();
+            </pre>
+            <p>
+                Create Event Controller for get all events and remove, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .controller('EventCtrl', EventCtrl);
+
+    function EventCtrl(EventService, Notification, $log, $rootScope, DEFAULT_EVENT_IMAGE) {
+        var vm = this;
+
+        vm.getEvents = getEvents;
+        vm.removeEvent = removeEvent;
+        vm.DEFAULT_EVENT_IMAGE = DEFAULT_EVENT_IMAGE;
+
+        function getEvents(username) {
+            function success(response) {
+                $log.info(response);
+
+                vm.events = response.data.objects;
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+            console.log(username);
+
+            EventService
+                .getEventsByUsername(username)
+                .then(success, failed);
+        }
+
+        function removeEvent(slug) {
+            function success(response) {
+                $log.info(response);
+
+                getEvents($rootScope.globals.currentUser.metadata.username);
+
+                Notification.success('Deleted');
+            }
+
+            function failed(response) {
+                Notification.error(response.data.message);
+
+                $log.error(response);
+            }
+
+            EventService
+                .removeEvent(slug)
+                .then(success, failed);
+        }
+    }
+})();
+            </pre>
+            <p>
+                Create Event Module, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('event', [
+            'event.profile',
+            'event.feed',
+            'event.add'
+        ])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+
+        $stateProvider
+            .state('main.event', {
+                url: 'events',
+                views: {
+                    '': {
+                        templateUrl: '../views/event/events.html',
+                        controller: 'EventCtrl as vm'
+                    }
+                },
+                data: {
+                    is_granted: ['ROLE_USER']
+                }
+            });
+    }
+
+})();
+            </pre>
+            <h2>
+                What's going on here:
+            </h2>
+            <ol>
+                <li>We created Event Service for our asynchronous calls to our Cosmic JS API. We can create, update, remove and getting Events.</li>
+                <li>We created Event Controller for getting all events and remove.</li>
+                <li>We created Event Module.</li>
+            </ol>
+            <p>
+                Create Event Add Controller for adding events, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .controller('EventAddCtrl', EventAddCtrl);
+
+    function EventAddCtrl(EventService, Notification, $state, $log, $scope, MEDIA_URL, DEFAULT_EVENT_IMAGE, $timeout) {
+        var vm = this;
+
+        vm.createEvent = createEvent;
+        vm.cancelUpload = cancelUpload;
+        vm.upload = upload;
+
+        vm.dateBeginPicker = false;
+        vm.dateEndPicker = false;
+        vm.contentEditor = true;
+        vm.uploadProgress = 0;
+
+        vm.event = {
+            title: null,
+            slug: null,
+            content: null,
+            metafields: [
+                {
+                    key: "image",
+                    type: "file",
+                    value: null
+                },
+                {
+                    key: "date_begin",
+                    type: "date",
+                    value: null
+                },
+                {
+                    key: "date_end",
+                    type: "date",
+                    value: null
+                },
+                {
+                    key: "type",
+                    type: "select-dropdown",
+                    options: [
+                        {
+                            key: "social",
+                            value: "Social"
+                        },
+                        {
+                            key: "fun",
+                            value: "Fun"
+                        }
+                    ],
+                    value: "Social"
+                }
+            ]
+        };
+
+        $timeout(function() {
+            vm.event.metafields[1].value = new Date();
+            vm.event.metafields[2].value = new Date();
+        }, 100);
+
+        vm.flow = {};
+        vm.background = {
+            'background-image': 'url(' + DEFAULT_EVENT_IMAGE + ')'
+        };
+
+        vm.flowConfig = {
+            target: MEDIA_URL,
+            singleFile: true
+        };
+
+        function createEvent() {
+            if (vm.flow.files[0])
+                upload();
+            else
+                _createEvent(vm.event);
+        }
+
+        function _createEvent(event) {
+            function success(response) {
+                $log.info(response);
+
+                Notification.success(
+                    {
+                        message: 'Created',
+                        delay: 800,
+                        replaceMessage: true
+                    }
+                );
+
+                $state.go('main.event');
+            }
+
+            function failed(response) {
+                Notification.error(
+                    {
+                        message: response.data.error,
+                        delay: 4000,
+                        replaceMessage: true
+                    }
+                );
+
+                $log.error(response);
+            }
+
+            EventService
+                .createEvent(event)
+                .then(success, failed);
+        }
+
+        function cancelUpload() {
+            vm.flow.cancel();
+            vm.background = {
+                'background-image': 'url(' + DEFAULT_EVENT_IMAGE.url + ')'
+            };
+        }
+
+        $scope.$watch('vm.flow.files[0].file.name', function () {
+            if (!vm.flow.files[0]) {
+                return ;
+            }
+            var fileReader = new FileReader();
+            fileReader.readAsDataURL(vm.flow.files[0].file);
+            fileReader.onload = function (event) {
+                $scope.$apply(function () {
+                    vm.background = {
+                        'background-image': 'url(' + event.target.result + ')'
+                    };
+                });
+            };
+        });
+
+        function upload() {
+            EventService
+                .upload(vm.flow.files[0].file)
+                .then(function(response){
+
+                    vm.event.metafields[0].value = response.media.name;
+
+                    createEvent(vm.event);
+
+                    vm.flow.cancel();
+                    vm.uploadProgress = 0;
+
+                }, function(){
+                    console.log('failed :(');
+                }, function(progress){
+                    vm.uploadProgress = progress;
+                });
+
+        }
+
+    }
+})();
+            </pre>
+            <p>
+                Create Event Module, copy and paste the code below:
+            </p>
+            <pre>
+(function () {
+    'use strict';
+
+    angular
+        .module('event.add', [])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+
+        $stateProvider
+            .state('main.event.add', {
+                url: '/add',
+                views: {
+                    '@main': {
+                        templateUrl: '../views/event/event.profile.html',
+                        controller: 'EventAddCtrl as vm'
+                    }
+                },
+                data: {
+                    is_granted: ['ROLE_USER']
+                }
+            });
+    }
+
+})();
+            </pre>
+            <h2>
+                What's going on here:
+            </h2>
+            <ol>
+                <li>We can added events.</li>
+                <li>We can upload images.</li>
+            </ol>
+            <h2>Conclusion:</h2>
+            <p>
+                We were able to consume the Cosmic JS API with our actions and dispatcher functions.
+                I hope you enjoyed this tutorial as much as I did,
+                if you have any questions <a href="https://twitter.com/cosmic_js">reach out to us on Twitter</a>
+                and <a href="https://cosmicjs.com/community">join our community on Slack</a>.
+            </p>
+            <br>
+        </div>
+    </div>
+</div>

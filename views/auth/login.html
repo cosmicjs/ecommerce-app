@@ -1,0 +1,90 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-offset-4 col-lg-4">
+            <h3 class="text-center"><b>Events</b></h3>
+            <br>
+
+            <div class="panel panel-default" ng-if="auth.showRegisterForm">
+                <form name="auth.registerForm">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <input type="email"
+                                   id="email"
+                                   class="form-control"
+                                   placeholder="Email"
+                                   required=""
+                                   ng-model="user.email">
+                        </div>
+                        <div class="form-group">
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="Full Name"
+                                   required=""
+                                   autofocus=""
+                                   ng-model="user.full_name">
+                        </div>
+                        <div class="form-group">
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="Username"
+                                   required=""
+                                   autofocus=""
+                                   ng-model="user.username">
+                        </div>
+                        <div class="form-group">
+                            <input type="password"
+                                   class="form-control"
+                                   placeholder="Password"
+                                   required=""
+                                   ng-model="user.password">
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn btn-lg btn-success btn-block"
+                                ng-class="{'disabled': auth.registerForm.$invalid}"
+                                ng-click="auth.register(user)">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="panel panel-default" ng-if="!auth.showRegisterForm">
+                <form name="auth.loginForm">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="Email"
+                                   required=""
+                                   autofocus=""
+                                   ng-model="auth.credentials.email">
+                        </div>
+                        <div class="form-group">
+                            <input type="password"
+                                   class="form-control"
+                                   placeholder="Password"
+                                   required=""
+                                   ng-model="auth.credentials.password">
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn btn-lg btn-primary btn-block"
+                                ng-class="{'disabled': auth.loginForm.$invalid}"
+                                ng-click="auth.login(auth.credentials)">Sign in</button>
+                    </div>
+                </form>
+            </div>
+
+            <flash-message></flash-message>
+
+            <div class="panel panel-default" ng-if="auth.showRegisterForm">
+                <div class="panel-body text-center">
+                    Have an account? <a href="" ng-click="auth.showRegisterForm = false">Log in</a>
+                </div>
+            </div>
+            <div class="panel panel-default" ng-if="!auth.showRegisterForm">
+                <div class="panel-body text-center">
+                    Don't have an account? <a href="" ng-click="auth.showRegisterForm = true"> Sign up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+<div class="row events-list" ng-init="vm.getEvents(global.currentUser.username)">
+    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12"
+         ng-repeat="event in vm.events">
+        <a ui-sref="main.user.profile({slug: event.metadata.user.slug})">
+            <img ng-src="{{event.metadata.user.metadata.image.url}}"
+                 uib-tooltip="{{event.metadata.user.metadata.username}}"
+                 class="img-circle user-event-avatar img-responsive">
+        </a>
+        <div class=" thumb event-thumb">
+            <span class="badge bg-red event-remove"
+                  ng-if="state.is('main.event')"
+                  uib-tooltip="Remove"
+                  ng-click="vm.removeEvent(event.slug);">
+                <i class="fa fa-remove"></i>
+        </span>
+            <a class="thumbnail text-center" ui-sref="main.event.profile({slug: event.slug})">
+                <div class="img-container">
+                    <img ng-show="event.metafields[0].value" class="img-responsive" ng-src="{{event.metadata.image.url}}">
+                    <img ng-show="!event.metafields[0].value" class="img-responsive" ng-src="{{vm.DEFAULT_EVENT_IMAGE}}">
+                </div>
+                <h4>
+                    {{event.title}}
+                <span ng-switch="event.metadata.type">
+                    <span ng-switch-when="Social" class="badge bg-warning">social</span>
+                    <span ng-switch-when="Fun" class="badge bg-green">fun</span>
+                </span>
+                </h4>
+            </a>
+        </div>
+    </div>
+</div>

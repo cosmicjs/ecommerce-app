@@ -1,0 +1,79 @@
+<!-- Portfolio Item Heading -->
+<div class="row" ng-init="vm.getWatch()" >
+    <div class="col-sm-12">
+        <div hl-sticky offset-top="51" sticky-class="watch-header">
+            <h3 class="page-header">{{vm.watch.title}}
+                <small>{{vm.watch.metadata.brand}}</small>
+                <span class="pull-right"><i class="fa fa-dollar"></i> <b>{{vm.watch.metadata.price}}</b></span>
+            </h3>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+
+<!-- Portfolio Item Row -->
+<div class="row">
+
+    <div class="col-md-8">
+        <div style="height: 700px; overflow: hidden">
+            <div uib-carousel active="active" interval="5000">
+                <div uib-slide ng-repeat="slide in vm.watch.metadata.images track by $index" index="$index">
+                    <img ng-src="{{slide.metadata.image.url}}" style="margin:auto;" width="700">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <h3>Project Description</h3>
+        <p ng-bind-html="vm.watch.content"></p>
+        <h3>Project Details</h3>
+        <table class="table table-bordered">
+            <tr ng-repeat="field in vm.watch.metafields" ng-if="field.key !== 'images'">
+                <td><b>{{field.title}}</b></td>
+                <td>{{field.value}}</td>
+            </tr>
+        </table>
+        <button class="btn btn-success btn-block"><i class="fa fa-cart-plus"></i> Add to Cart</button>
+        <!--<ul>-->
+            <!--<li ng-repeat="field in vm.watch.metafields" ng-if="field.key !== 'images'">-->
+                <!--<span> <b></b></span>-->
+            <!--</li>-->
+        <!--</ul>-->
+    </div>
+
+</div>
+<!-- /.row -->
+
+<!--&lt;!&ndash; Related Projects Row &ndash;&gt;-->
+<!--<div class="row">-->
+
+    <!--<div class="col-lg-12">-->
+        <!--<h3 class="page-header">Related Projects</h3>-->
+    <!--</div>-->
+
+    <!--<div class="col-sm-3 col-xs-6">-->
+        <!--<a href="#">-->
+            <!--<img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">-->
+        <!--</a>-->
+    <!--</div>-->
+
+    <!--<div class="col-sm-3 col-xs-6">-->
+        <!--<a href="#">-->
+            <!--<img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">-->
+        <!--</a>-->
+    <!--</div>-->
+
+    <!--<div class="col-sm-3 col-xs-6">-->
+        <!--<a href="#">-->
+            <!--<img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">-->
+        <!--</a>-->
+    <!--</div>-->
+
+    <!--<div class="col-sm-3 col-xs-6">-->
+        <!--<a href="#">-->
+            <!--<img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">-->
+        <!--</a>-->
+    <!--</div>-->
+
+<!--</div>-->
