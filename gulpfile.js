@@ -3,12 +3,10 @@
 var gulp = require('gulp'),
     webserver = require('gulp-webserver'),
     minifyCSS = require('gulp-minify-css'),
-    concatCss = require('gulp-concat-css'),
     concat = require('gulp-concat'),
     wiredep = require('wiredep').stream,
     gulpNgConfig = require('gulp-ng-config'),
     autoprefixer = require('gulp-autoprefixer'),
-    remoteSrc = require('gulp-remote-src'),
     b2v = require('buffer-to-vinyl'),
     sync = require('gulp-npm-script-sync');
 
