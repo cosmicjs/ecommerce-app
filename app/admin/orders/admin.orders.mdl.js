@@ -2,25 +2,25 @@
     'use strict';
     
     angular
-        .module('admin', [
-            'admin.watches',
-            'admin.orders'
+        .module('admin.orders', [
+            'admin.orders.preview'
         ])
         .config(config);
 
     config.$inject = ['$stateProvider', '$urlRouterProvider'];
     function config($stateProvider, $urlRouterProvider) {
-
+ 
         $stateProvider
-            .state('admin', {
-                url: '/admin/',
-                abstract: true,
-                templateUrl: '../views/admin/admin.html',
-                // controller: 'AdminCtrl as admin',
+            .state('admin.orders', {
+                url: 'orders?key&value',
+                templateUrl: '../views/admin/admin.orders.html',
+                controller: 'AdminOrdersCtrl as vm',
                 // data: {
                 //     is_granted: ['ROLE_ADMIN']
                 // }
             });
+        
+        
     }
     
 })();

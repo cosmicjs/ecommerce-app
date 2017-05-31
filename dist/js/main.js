@@ -19,6 +19,7 @@
  
             'watch',
             'cart',
+            'admin',
             
             'config'
         ])
@@ -67,7 +68,7 @@
             })
             .state('blog', {
                 url: '/blog',
-                templateUrl: '../blog.html',
+                templateUrl: '../blog.html', 
                 data: {
                     is_granted: ['ROLE_USER']
                 }
@@ -104,6 +105,68 @@
         
     }
 
+})();
+ 
+(function () {
+    'use strict'; 
+
+    angular
+        .module('main')
+        .controller('AdminCtrl', UserCtrl);
+
+    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
+        var vm = this;
+        
+        vm.currentUser = $rootScope.globals.currentUser.metadata;
+        
+        vm.logout = logout;
+
+        function logout() {
+            function success(response) {
+                $state.go('auth');
+
+                $log.info(response);
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            AuthService
+                .clearCredentials()
+                .then(success, failed);
+        }
+
+        $scope.state = $state;
+
+    }
+})();
+
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin', [
+            'admin.watches',
+            'admin.orders'
+        ])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+
+        $stateProvider
+            .state('admin', {
+                url: '/admin/',
+                abstract: true,
+                templateUrl: '../views/admin/admin.html',
+                // controller: 'AdminCtrl as admin',
+                // data: {
+                //     is_granted: ['ROLE_ADMIN']
+                // }
+            });
+    }
+    
 })();
  
 (function () {
@@ -303,173 +366,6 @@
 
     angular
         .module('main')
-        .controller('AdminCtrl', UserCtrl);
-
-    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
-        var vm = this;
-        
-        vm.currentUser = $rootScope.globals.currentUser.metadata;
-        
-        vm.logout = logout;
-
-        function logout() {
-            function success(response) {
-                $state.go('auth');
-
-                $log.info(response);
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-
-            AuthService
-                .clearCredentials()
-                .then(success, failed);
-        }
-
-        $scope.state = $state;
-
-    }
-})();
-
-(function () {
-    'use strict';
-    
-    angular
-        .module('admin', [
-        ])
-        .config(config);
-
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
- 
-        $stateProvider
-            .state('admin', {
-                url: '/admin/',
-                abstract: false,
-                templateUrl: '../views/admin/admin.html',
-                controller: 'AdminCtrl as admin',
-                data: {
-                    is_granted: ['ROLE_ADMIN']
-                }
-            });
-    }
-    
-})();
- 
-(function () {
-    'use strict';
-
-    angular
-        .module('main')
-        .service('EventService', function ($http,
-                                          $cookieStore, 
-                                          $q, 
-                                          $rootScope, 
-                                          URL, BUCKET_SLUG, READ_KEY, WRITE_KEY, MEDIA_URL) {
-            
-            $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
-            this.getEvents = function () {
-                return $http.get(URL + BUCKET_SLUG + '/object-type/events', {
-                    params: {
-                        limit: 100,
-                        read_key: READ_KEY
-                    }
-                });
-            };
-            this.getEventsByUsername = function (username, ignoreLoadingBar) {
-                return $http.get(URL + BUCKET_SLUG + '/object-type/events/search',
-                    {
-                        ignoreLoadingBar: ignoreLoadingBar,
-                        params: {
-                            metafield_key: 'user',
-                            metafield_object_slug: username,
-                            limit: 10,
-                            read_key: READ_KEY
-                        }
-                    }
-                );
-            };
-            this.getEventById = function (slug) {
-                return $http.get(URL + BUCKET_SLUG + '/object/' + slug, {
-                    params: {
-                        read_key: READ_KEY
-                    }
-                });
-            };
-            this.updateEvent = function (event) {
-                event.write_key = WRITE_KEY;
-
-                return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
-            };
-            this.removeEvent = function (slug) {
-                return $http.delete(URL + BUCKET_SLUG + '/' + slug, {
-                    ignoreLoadingBar: true,
-                    headers:{
-                        'Content-Type': 'application/json'
-                    },
-                    data: {
-                        write_key: WRITE_KEY
-                    }
-                });
-            };
-            this.createEvent = function (event) {
-                event.write_key = WRITE_KEY;
-
-                var beginDate = new Date(event.metafields[1].value);
-                var endDate = new Date(event.metafields[2].value);
-
-                event.metafields[1].value = beginDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + beginDate.getDate();
-                event.metafields[2].value = endDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + endDate.getDate();
-
-                event.slug = event.title;
-                event.type_slug = 'events';
-
-                event.metafields[4] = {
-                    key: "user",
-                    type: "object",
-                    object_type: "users",
-                    value: $rootScope.globals.currentUser._id
-                };
-                return $http.post(URL + BUCKET_SLUG + '/add-object', event);
-            };
-            this.upload = function (file) {
-                var fd = new FormData(); 
-                fd.append('media', file);
-                fd.append('write_key', WRITE_KEY);
-
-                var defer = $q.defer();
-
-                var xhttp = new XMLHttpRequest();
-
-                xhttp.upload.addEventListener("progress",function (e) {
-                    defer.notify(parseInt(e.loaded * 100 / e.total));
-                });
-                xhttp.upload.addEventListener("error",function (e) {
-                    defer.reject(e);
-                });
-
-                xhttp.onreadystatechange = function() {
-                    if (xhttp.readyState === 4) {
-                        defer.resolve(JSON.parse(xhttp.response)); //Outputs a DOMString by default
-                    }
-                };
-
-                xhttp.open("post", MEDIA_URL, true);
-
-                xhttp.send(fd);
-                
-                return defer.promise;
-            }
-        });
-})();  
-(function () {
-    'use strict'; 
-
-    angular
-        .module('main')
         .controller('CartCtrl', CartCtrl);
 
     function CartCtrl(CartService, WatchService, Notification, $log, MEDIA_URL, $state) {
@@ -479,10 +375,13 @@
         vm.getCart = getCart;
         vm.hasInCart = hasInCart;
         vm.removeFromCart = removeFromCart;
+        vm.completeOrder = completeOrder;
 
         vm.cart = {};
+        vm.cart.order = {};
         vm.watches = [];
         vm.totalPrice = 0;
+        vm.orderForm = null;
 
         function addToCart(item) {
             function success(response) {
@@ -499,6 +398,24 @@
                 .addToCart(item)
                 .then(success, failed);
 
+        }
+
+        function completeOrder(order) {
+            order.watches = vm.watches;
+
+            function success(response) {
+                Notification.success('Success');
+
+            }
+
+            function failed(response) {
+                Notification.error(response.data.message);
+            }
+
+            if (vm.orderForm)
+                CartService
+                    .completeOrder(order)
+                    .then(success, failed);
         }
 
         function removeFromCart(_id) {
@@ -575,7 +492,9 @@
     'use strict';
     
     angular
-        .module('cart', [])
+        .module('cart', [
+            'cart.checkout'
+        ])
         .config(config); 
 
     config.$inject = ['$stateProvider', '$urlRouterProvider'];
@@ -658,6 +577,69 @@
                 cart = cart ? cart : {};
 
                 return _id in cart;
+            };
+
+            that.completeOrder = function (order) {
+                var watches = [];
+
+                order.watches.forEach(function (item) {
+                    watches.push(item._id);
+                });
+
+                return $http.post(URL + BUCKET_SLUG + '/add-object/', {
+                    write_key: WRITE_KEY,
+                    title: order.firstName + ' ' + order.lastName,
+                    type_slug: "orders",
+                    metafields: [
+                        {
+                            key: "first_name",
+                            type: "text",
+                            value: order.firstName
+
+                        },
+                        {
+                            key: "last_name",
+                            type: "text",
+                            value: order.lastName
+
+                        },
+                        {
+                            key: "address",
+                            type: "text",
+                            value: order.address
+
+                        },
+                        {
+                            key: "city",
+                            type: "text",
+                            value: order.city
+
+                        },
+                        {
+                            key: "phone",
+                            type: "text",
+                            value: order.phone
+
+                        },
+                        {
+                            key: "postal_code",
+                            type: "text", 
+                            value: order.postalCode
+
+                        },
+                        {
+                            key: "email",
+                            type: "text",
+                            value: order.email
+                        },
+                        {
+                            key: "watches",
+                            type: "objects",
+                            object_type: "watches",
+                            value: watches.join()
+                        }
+                    ]
+                });
             };
         });  
 })();  
@@ -1158,48 +1140,55 @@ angular.module("config", [])
 
     angular
         .module('main')
-        .controller('EventFeedCtrl', EventFeedCtrl);
+        .controller('AdminOrdersCtrl', AdminOrdersCtrl);
 
-    function EventFeedCtrl(EventService, Notification, $log, DEFAULT_EVENT_IMAGE) {
+    function AdminOrdersCtrl($rootScope, $scope, Notification, AdminOrdersService, Flash, $log) {
         var vm = this;
 
-        vm.getEvents = getEvents;
-        vm.removeEvent = removeEvent;
-        vm.DEFAULT_EVENT_IMAGE = DEFAULT_EVENT_IMAGE;
+        vm.getOrders = getOrders; 
+        vm.removeOrder = removeOrder;
+        vm.totalPrice = totalPrice;
 
-        function getEvents() {
+        vm.orders = [];
+
+        function getOrders() {
             function success(response) {
-                $log.info(response);
-                vm.events = response.data.objects;
+                vm.orders = response.data.objects;
+
             }
 
             function failed(response) {
                 $log.error(response);
             }
 
-            EventService
-                .getEvents()
+            AdminOrdersService
+                .getOrders()
                 .then(success, failed);
         }
 
-        function removeEvent(slug) {
+        function removeOrder(slug) {
             function success(response) {
-                $log.info(response);
-
-                Notification.success('Deleted');
+                getOrders();
+                Notification.success(response.data.message);
             }
 
             function failed(response) {
                 Notification.error(response.data.message);
-                
-                $log.error(response);
             }
 
-
-
-            EventService
-                .removeEvent(slug)
+            AdminOrdersService
+                .removeOrder(slug)
                 .then(success, failed);
+        }
+        
+        function totalPrice(watches) {
+            var total = 0;
+
+            watches.forEach(function (item) {
+                total += item.metadata.price;
+            });
+
+            return total;
         }
     }
 })();
@@ -1208,24 +1197,142 @@ angular.module("config", [])
     'use strict';
     
     angular
-        .module('event.feed', [])
+        .module('admin.orders', [
+            'admin.orders.preview'
+        ])
         .config(config);
 
     config.$inject = ['$stateProvider', '$urlRouterProvider'];
     function config($stateProvider, $urlRouterProvider) {
  
         $stateProvider
-            .state('main.event.feed', {
-                url: '/feed',
-                views: {
-                    '@main': {
-                        templateUrl: '../views/event/event.feed.html',
-                        controller: 'EventFeedCtrl as vm'
+            .state('admin.orders', {
+                url: 'orders?key&value',
+                templateUrl: '../views/admin/admin.orders.html',
+                controller: 'AdminOrdersCtrl as vm',
+                // data: {
+                //     is_granted: ['ROLE_ADMIN']
+                // }
+            });
+        
+        
+    }
+    
+})();
+ 
+(function () {
+    'use strict';
+
+    angular
+        .module('main')
+        .service('AdminOrdersService', function ($http,
+                                          $cookieStore, 
+                                          $q, 
+                                          $rootScope,
+                                          URL, BUCKET_SLUG, READ_KEY, WRITE_KEY, MEDIA_URL) {
+            
+            $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+            this.getOrders = function () {
+                return $http.get(URL + BUCKET_SLUG + '/object-type/orders', {
+                    params: {
+                        limit: 100,
+                        read_key: READ_KEY
                     }
-                },
-                data: {
-                    is_granted: ['ROLE_ADMIN']
-                }
+                });
+            };
+            this.getOrderBySlug = function (slug) {
+                return $http.get(URL + BUCKET_SLUG + '/object/' + slug, {
+                    params: {
+                        read_key: READ_KEY
+                    }
+                });
+            };
+
+            this.updateEvent = function (event) {
+                event.write_key = WRITE_KEY;
+
+                return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
+            };
+            this.removeOrder = function (slug) {
+                return $http.delete(URL + BUCKET_SLUG + '/' + slug, {
+                    ignoreLoadingBar: true,
+                    headers:{
+                        'Content-Type': 'application/json'
+                    },
+                    data: {
+                        write_key: WRITE_KEY
+                    }
+                });
+            };
+            this.createEvent = function (event) {
+                event.write_key = WRITE_KEY;
+
+                var beginDate = new Date(event.metafields[1].value);
+                var endDate = new Date(event.metafields[2].value);
+
+                event.metafields[1].value = beginDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + beginDate.getDate();
+                event.metafields[2].value = endDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + endDate.getDate();
+
+                event.slug = event.title;
+                event.type_slug = 'events';
+
+                event.metafields[4] = {
+                    key: "user",
+                    type: "object",
+                    object_type: "users",
+                    value: $rootScope.globals.currentUser._id
+                };
+                return $http.post(URL + BUCKET_SLUG + '/add-object', event);
+            };
+            this.upload = function (file) {
+                var fd = new FormData(); 
+                fd.append('media', file);
+                fd.append('write_key', WRITE_KEY);
+
+                var defer = $q.defer();
+
+                var xhttp = new XMLHttpRequest();
+
+                xhttp.upload.addEventListener("progress",function (e) {
+                    defer.notify(parseInt(e.loaded * 100 / e.total));
+                });
+                xhttp.upload.addEventListener("error",function (e) {
+                    defer.reject(e);
+                });
+
+                xhttp.onreadystatechange = function() {
+                    if (xhttp.readyState === 4) {
+                        defer.resolve(JSON.parse(xhttp.response)); //Outputs a DOMString by default
+                    }
+                };
+
+                xhttp.open("post", MEDIA_URL, true);
+
+                xhttp.send(fd);
+                
+                return defer.promise;
+            }
+        });
+})();  
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin.watches', [])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+ 
+        $stateProvider
+            .state('admin.watches', {
+                url: 'watches?key&value',
+                templateUrl: '../views/admin/admin.watches.html',
+                controller: 'WatchCtrl as vm',
+                // data: {
+                //     is_granted: ['ROLE_ADMIN']
+                // }
             });
     }
     
@@ -1382,6 +1489,28 @@ angular.module("config", [])
             });
     }
     
+})();
+ 
+(function () {
+    'use strict';
+    
+    angular
+        .module('cart.checkout', [])
+        .config(config); 
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+ 
+        $stateProvider
+            .state('main.cart.checkout', {
+                url: '/checkout',
+                views: {
+                    '@main': {
+                        templateUrl: '../views/cart/cart.checkout.html'
+                    }
+                }
+            });
+    }
 })();
  
 (function () {
@@ -1732,5 +1861,58 @@ angular.module("config", [])
             });
     }
     
+})();
+ 
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin.orders.preview', [])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+
+        $stateProvider
+            .state('admin.orders.preview', {
+                url: '/preview/:slug',
+                onEnter: [
+                    'ngDialog',
+                    'AdminOrdersService',
+                    '$stateParams',
+                    '$state',
+                    '$log',
+                    function (ngDialog, AdminOrdersService, $stateParams, $state, $log) {
+                        getOrder($stateParams.slug);
+
+                        function getOrder(slug) {
+                            function success(response) {
+                                openDialog(response.data.object);
+                            }
+
+                            function failed(response) {
+                                $log.error(response);
+                            }
+
+                            AdminOrdersService
+                                .getOrderBySlug(slug)
+                                .then(success, failed);
+                        }
+
+                        function openDialog(data) {
+
+                            var options = {
+                                templateUrl: '../views/admin/admin.orders.preview.html',
+                                data: data,
+                                showClose: true
+                            };
+
+                            ngDialog.open(options).closePromise.finally(function () {
+                                $state.go('admin.orders');
+                            });
+                        }
+                    }]
+            });
+    }
 })();
  

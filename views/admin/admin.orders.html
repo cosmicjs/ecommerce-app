@@ -1,0 +1,32 @@
+<div class="row" ng-init="vm.getOrders()">
+    <div class="col-lg-12">
+        <table class="table table-striped">
+            <tr>
+                <th>#</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>Phone</th>
+                <th>Postal Code</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+            <tr ng-repeat="order in vm.orders">
+                <td>{{$index + 1}}</td>
+                <td><a ui-sref="admin.orders.preview({slug: order.slug})">{{order.metadata.first_name + ' ' + order.metadata.last_name}}</a></td>
+                <td>{{order.metadata.email}}</td>
+                <td>{{order.metadata.address}}</td>
+                <td>{{order.metadata.city}}</td>
+                <td>{{order.metadata.phone}}</td>
+                <td>{{order.metadata.postal_code}}</td>
+                <td>{{order.metadata.watches.length}}</td>
+                <td><i class="fa fa-dollar"></i> <b>{{vm.totalPrice(order.metadata.watches)}}</b></td>
+                <td>
+                    <button class="btn btn-default btn-sm" ng-click="vm.removeOrder(order.slug)"><i class="fa fa-remove"></i></button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

@@ -13,23 +13,6 @@
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li>
-                    <a href="#">About</a>
-                </li>
-                <li>
-                    <a href="#">Services</a>
-                </li>
-                <li>
-                    <a href="#">Contact</a>
-                </li>
-            </ul>
-            <!--<form class="navbar-form navbar-right">-->
-                <!--<div class="form-group">-->
-                    <!--<input type="text" class="form-control" placeholder="Search" ng-model="watchName">-->
-                <!--</div>-->
-                <!--<a ui-sref="main.watch.profile({slug: watchName})" class="btn btn-default">Search</a>-->
-            <!--</form>-->
             <a ui-sref="main.cart" class="btn btn-primary navbar-btn navbar-right" ng-init="cart.getCart()">
                 <i class="fa fa-shopping-cart"></i> <span class="badge">{{cart.watches.length}}</span>
             </a>
@@ -40,7 +23,7 @@
 </nav>
 
 <!-- Page Content -->
-<div class="container" ui-view></div>
+<div id="shop" class="container" ui-view></div>
 <!-- /.container -->
 
 <div class="container">

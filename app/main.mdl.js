@@ -19,6 +19,7 @@
  
             'watch',
             'cart',
+            'admin',
             
             'config'
         ])
@@ -67,7 +68,7 @@
             })
             .state('blog', {
                 url: '/blog',
-                templateUrl: '../blog.html',
+                templateUrl: '../blog.html', 
                 data: {
                     is_granted: ['ROLE_USER']
                 }

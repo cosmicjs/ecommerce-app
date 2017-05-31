@@ -68,5 +68,68 @@
 
                 return _id in cart;
             };
+
+            that.completeOrder = function (order) {
+                var watches = [];
+
+                order.watches.forEach(function (item) {
+                    watches.push(item._id);
+                });
+
+                return $http.post(URL + BUCKET_SLUG + '/add-object/', {
+                    write_key: WRITE_KEY,
+                    title: order.firstName + ' ' + order.lastName,
+                    type_slug: "orders",
+                    metafields: [
+                        {
+                            key: "first_name",
+                            type: "text",
+                            value: order.firstName
+
+                        },
+                        {
+                            key: "last_name",
+                            type: "text",
+                            value: order.lastName
+
+                        },
+                        {
+                            key: "address",
+                            type: "text",
+                            value: order.address
+
+                        },
+                        {
+                            key: "city",
+                            type: "text",
+                            value: order.city
+
+                        },
+                        {
+                            key: "phone",
+                            type: "text",
+                            value: order.phone
+
+                        },
+                        {
+                            key: "postal_code",
+                            type: "text", 
+                            value: order.postalCode
+
+                        },
+                        {
+                            key: "email",
+                            type: "text",
+                            value: order.email
+                        },
+                        {
+                            key: "watches",
+                            type: "objects",
+                            object_type: "watches",
+                            value: watches.join()
+                        }
+                    ]
+                });
+            };
         });  
 })();  

@@ -18,7 +18,7 @@
         <div style="height: 700px; overflow: hidden">
             <div uib-carousel active="active" interval="5000">
                 <div uib-slide ng-repeat="slide in vm.watch.metadata.images track by $index" index="$index">
-                    <img ng-src="{{slide.metadata.image.url}}" style="margin:auto;" width="700">
+                    <img ng-src="{{slide.url}}" style="margin:auto;" width="700">
                 </div>
             </div>
         </div>

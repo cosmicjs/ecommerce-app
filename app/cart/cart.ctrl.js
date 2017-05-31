@@ -12,10 +12,13 @@
         vm.getCart = getCart;
         vm.hasInCart = hasInCart;
         vm.removeFromCart = removeFromCart;
+        vm.completeOrder = completeOrder;
 
         vm.cart = {};
+        vm.cart.order = {};
         vm.watches = [];
         vm.totalPrice = 0;
+        vm.orderForm = null;
 
         function addToCart(item) {
             function success(response) {
@@ -32,6 +35,24 @@
                 .addToCart(item)
                 .then(success, failed);
 
+        }
+
+        function completeOrder(order) {
+            order.watches = vm.watches;
+
+            function success(response) {
+                Notification.success('Success');
+
+            }
+
+            function failed(response) {
+                Notification.error(response.data.message);
+            }
+
+            if (vm.orderForm)
+                CartService
+                    .completeOrder(order)
+                    .then(success, failed);
         }
 
         function removeFromCart(_id) {

@@ -2,7 +2,9 @@
     'use strict';
     
     angular
-        .module('cart', [])
+        .module('cart', [
+            'cart.checkout'
+        ])
         .config(config); 
 
     config.$inject = ['$stateProvider', '$urlRouterProvider'];

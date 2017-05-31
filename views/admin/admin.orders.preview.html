@@ -1,0 +1,9 @@
+<div class="row" ng-repeat="watch in ngDialogData.metadata.watches">
+    <div class="col-sm-4">
+        <div class="thumbnail">
+            <img ng-src="{{'https://cosmicjs.com/uploads/' + watch.metafields[11].children[0].value}}" width="50">
+        </div>
+    </div>
+    <div class="col-sm-4 text-center"><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></div>
+    <div class="col-sm-4 text-right"><i class="fa fa-dollar"></i> <b>{{watch.metadata.price}}</b></div>
+</div>

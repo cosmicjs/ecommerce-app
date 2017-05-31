@@ -1,0 +1,27 @@
+<div id="wrapper" class="toggled">
+
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <li class="sidebar-brand">
+                <a href="#">
+                    Ecommerce App
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="admin.watches">Watches</a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="admin.orders">Orders</a>
+            </li>
+        </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid" ui-view></div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+</div>

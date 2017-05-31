@@ -1,0 +1,82 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">Your Cart</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row" ng-repeat="watch in cart.watches">
+                            <div class="col-sm-4">
+                                <div class="thumbnail">
+                                    <img ng-src="{{watch.metadata.images.image_1.url}}" width="50">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 text-center"><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></div>
+                            <div class="col-sm-4 text-right"><i class="fa fa-dollar"></i> <b>{{watch.metadata.price}}</b></div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span>Total: </span><span class="pull-right"><b><i class="fa fa-dollar"></i> {{cart.totalPrice}}</b></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">Shipping Address</div>
+                    </div>
+                    <div class="panel-body">
+                        <form name="cart.orderForm">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" name="firstName" class="form-control" placeholder="First Name" ng-model="cart.order.firstName" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" name="lastName" class="form-control" placeholder="Last Name" ng-model="cart.order.lastName" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <input type="text" name="address" class="form-control" placeholder="Address" ng-model="cart.order.address" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" name="city" class="form-control" placeholder="City" ng-model="cart.order.city" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" name="postalCode" class="form-control" placeholder="Postal Code" ng-model="cart.order.postalCode" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" name="phone" class="form-control" placeholder="Phone" ng-model="cart.order.phone" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" name="email" class="form-control" placeholder="Email" ng-model="cart.order.email" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <button class="btn btn-success pull-right" ng-class="{'disabled': cart.orderForm.$invalid}" ng-click="cart.completeOrder(cart.order)">Complete Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

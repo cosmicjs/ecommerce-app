@@ -3,48 +3,36 @@
 
     angular
         .module('main')
-        .service('EventService', function ($http,
+        .service('AdminOrdersService', function ($http,
                                           $cookieStore, 
                                           $q, 
-                                          $rootScope, 
+                                          $rootScope,
                                           URL, BUCKET_SLUG, READ_KEY, WRITE_KEY, MEDIA_URL) {
             
             $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-            this.getEvents = function () {
-                return $http.get(URL + BUCKET_SLUG + '/object-type/events', {
+            this.getOrders = function () {
+                return $http.get(URL + BUCKET_SLUG + '/object-type/orders', {
                     params: {
                         limit: 100,
                         read_key: READ_KEY
                     }
                 });
             };
-            this.getEventsByUsername = function (username, ignoreLoadingBar) {
-                return $http.get(URL + BUCKET_SLUG + '/object-type/events/search',
-                    {
-                        ignoreLoadingBar: ignoreLoadingBar,
-                        params: {
-                            metafield_key: 'user',
-                            metafield_object_slug: username,
-                            limit: 10,
-                            read_key: READ_KEY
-                        }
-                    }
-                );
-            };
-            this.getEventById = function (slug) {
+            this.getOrderBySlug = function (slug) {
                 return $http.get(URL + BUCKET_SLUG + '/object/' + slug, {
                     params: {
                         read_key: READ_KEY
                     }
                 });
             };
+
             this.updateEvent = function (event) {
                 event.write_key = WRITE_KEY;
 
                 return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
             };
-            this.removeEvent = function (slug) {
+            this.removeOrder = function (slug) {
                 return $http.delete(URL + BUCKET_SLUG + '/' + slug, {
                     ignoreLoadingBar: true,
                     headers:{

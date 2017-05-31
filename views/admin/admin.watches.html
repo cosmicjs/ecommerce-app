@@ -1,0 +1,32 @@
+<div class="row" ng-init="vm.getWatches()">
+    <div class="col-lg-12">
+        <table class="table table-striped">
+            <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Model</th>
+                <th>Brand</th>
+                <th>Color</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+            <tr ng-repeat="watch in vm.watches">
+                <td>{{$index + 1}}</td>
+                <td><img ng-src="{{watch.metadata.images.image_1.url}}" width="50"></td>
+                <td><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></td>
+                <td><a ui-sref="admin.watches({key: 'brand', value: watch.metadata.brand})">{{watch.metadata.brand}}</a></td>
+                <td><a ui-sref="admin.watches({key: 'color', value: watch.metadata.color})">{{watch.metadata.color}}</a></td>
+                <td><a ui-sref="admin.watches({key: 'category', value: watch.metadata.category})">{{watch.metadata.category}}</a></td>
+                <td><i class="fa fa-dollar"></i> {{watch.metadata.price}}</td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-default btn-sm"><i class="fa fa-pencil"></i></button>
+                        <button class="btn btn-default btn-sm"><i class="fa fa-remove"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <button class="btn btn-success"><i class="fa fa-plus-circle"></i> Add watch</button>
+    </div>
+</div>

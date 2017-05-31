@@ -1,7 +1,5 @@
-<div class="row"m>
-
+<div class="row">
     <div class="col-md-12">
-
         <div class="row">
 
             <table class="table table-striped">
@@ -15,7 +13,7 @@
                 </tr>
                 <tr ng-repeat="watch in cart.watches">
                     <td>{{$index + 1}}</td>
-                    <td><img ng-src="{{watch.metadata.images[0].metadata.image.url}}" width="100"></td>
+                    <td><img ng-src="{{watch.metadata.images.image_1.url}}" width="100"></td>
                     <td><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></td>
                     <td>{{watch.metadata.brand}}</td>
                     <td><i class="fa fa-dollar"></i> {{watch.metadata.price}}</td>
@@ -27,9 +25,8 @@
 
         </div>
         <div class="row">
-            <div class="col-md-6"><a class="btn btn-primary btn-lg" ng-class="{'disabled': !cart.watches.length}">Checkout</a></div>
+            <div class="col-md-6"><a class="btn btn-primary btn-lg" ui-sref="main.cart.checkout" ng-class="{'disabled': !cart.watches.length}">Checkout</a></div>
             <div class="col-md-6 text-right"><h3>Total: <b><i class="fa fa-dollar"></i> {{cart.totalPrice}}</b></h3></div>
         </div>
     </div>
-
 </div>
