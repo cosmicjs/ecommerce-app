@@ -15,9 +15,9 @@
                 url: 'orders?key&value',
                 templateUrl: '../views/admin/admin.orders.html',
                 controller: 'AdminOrdersCtrl as vm',
-                // data: {
-                //     is_granted: ['ROLE_ADMIN']
-                // }
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
             });
         
         

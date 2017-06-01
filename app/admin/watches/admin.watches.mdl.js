@@ -13,9 +13,9 @@
                 url: 'watches?key&value',
                 templateUrl: '../views/admin/admin.watches.html',
                 controller: 'WatchCtrl as vm',
-                // data: {
-                //     is_granted: ['ROLE_ADMIN']
-                // }
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
             });
     }
     

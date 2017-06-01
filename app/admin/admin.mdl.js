@@ -17,11 +17,11 @@
                 abstract: true,
                 templateUrl: '../views/admin/admin.html',
                 // controller: 'AdminCtrl as admin',
-                // data: {
-                //     is_granted: ['ROLE_ADMIN']
-                // }
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
             });
     }
-    
+
 })();
  

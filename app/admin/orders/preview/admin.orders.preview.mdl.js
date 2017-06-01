@@ -11,6 +11,9 @@
         $stateProvider
             .state('admin.orders.preview', {
                 url: '/preview/:slug',
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                },
                 onEnter: [
                     'ngDialog',
                     'AdminOrdersService',

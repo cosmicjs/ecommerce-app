@@ -45,11 +45,12 @@
             var crAcl = $injector.get("crAcl");
 
             var state = "";
-
+console.log(crAcl.getRole());
             switch (crAcl.getRole()) {
                 case 'ROLE_ADMIN':
-                    state = 'admin';
+                    state = 'admin.watches';
                     break;
+                default : state = 'main.watch';
             }
 
             if (state) $state.go(state);
@@ -77,8 +78,9 @@
                 url: '/login',
                 templateUrl: '../views/auth/login.html',
                 controller: 'AuthCtrl as auth',
-                onEnter: ['AuthService', function(AuthService) {
+                onEnter: ['AuthService', 'crAcl', function(AuthService, crAcl) {
                     AuthService.clearCredentials();
+                    crAcl.setRole();
                 }],
                 data: {
                     is_granted: ['ROLE_GUEST']
@@ -86,23 +88,28 @@
             });
     } 
 
-    run.$inject = ['$rootScope', '$cookieStore', '$http', 'crAcl'];
+    run.$inject = ['$rootScope', '$cookieStore', '$state', 'crAcl'];
+    function run($rootScope, $cookieStore, $state, crAcl) {
+        // keep user logged in after page refresh
+        $rootScope.globals = $cookieStore.get('globals') || {};
 
-    function run($rootScope, $cookieStore, $http, crAcl) {
-        // $rootScope.globals = $cookieStore.get('globals') || {};
-        // $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-        //
-        // crAcl
-        //     .setInheritanceRoles({
-        //         'ROLE_ADMIN': ['ROLE_ADMIN', 'ROLE_GUEST'],
-        //         'ROLE_USER': ['ROLE_USER', 'ROLE_GUEST'],
-        //         'ROLE_GUEST': ['ROLE_GUEST']
-        //     });
-        //
-        crAcl.setRedirect('main.watch');
-        crAcl.setRole();
+        crAcl
+            .setInheritanceRoles({
+                'ROLE_ADMIN': ['ROLE_ADMIN', 'ROLE_GUEST'],
+                'ROLE_GUEST': ['ROLE_GUEST']
+            });
 
-        
+        crAcl
+            .setRedirect('main.watch');
+
+        if ($rootScope.globals.currentUser) {
+            crAcl.setRole($rootScope.globals.currentUser.metadata.role);
+            // $state.go('admin.watches');
+        }
+        else {
+            crAcl.setRole();
+        }
+
     }
 
 })();

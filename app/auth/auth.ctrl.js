@@ -9,12 +9,10 @@
         var vm = this;              
 
         vm.login = login;
-        vm.register = register;
         
         vm.showRegisterForm = false;
         
         vm.loginForm = null;
-        vm.registerForm = null;
         
         vm.credentials = {};
         vm.user = {};
@@ -27,7 +25,7 @@
 
                         crAcl.setRole(currentUser.metadata.role);
                         AuthService.setCredentials(currentUser);
-                        $state.go('main.event.feed');
+                        $state.go('admin.watches');
                     }
                     else
                         Flash.create('danger', 'Incorrect username or password');
@@ -54,30 +52,6 @@
             if (vm.loginForm.$valid)
                 AuthService
                     .checkUsername(credentials)
-                    .then(success, failed);
-        }
-
-        function register(credentials) {
-            function success(response) {
-                $log.info(response);
-
-                var currentUser = response.data.object.metafields;
-
-                Flash.create('success', 'You have successfully signed up!');
-                vm.credentials = {
-                    username: currentUser[0].value,
-                    password: currentUser[3].value
-                };
-                vm.showRegisterForm = false;
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-
-            if (vm.registerForm.$valid)
-                AuthService
-                    .register(credentials)
                     .then(success, failed);
         }
 

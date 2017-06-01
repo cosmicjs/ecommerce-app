@@ -45,11 +45,12 @@
             var crAcl = $injector.get("crAcl");
 
             var state = "";
-
+console.log(crAcl.getRole());
             switch (crAcl.getRole()) {
                 case 'ROLE_ADMIN':
-                    state = 'admin';
+                    state = 'admin.watches';
                     break;
+                default : state = 'main.watch';
             }
 
             if (state) $state.go(state);
@@ -77,8 +78,9 @@
                 url: '/login',
                 templateUrl: '../views/auth/login.html',
                 controller: 'AuthCtrl as auth',
-                onEnter: ['AuthService', function(AuthService) {
+                onEnter: ['AuthService', 'crAcl', function(AuthService, crAcl) {
                     AuthService.clearCredentials();
+                    crAcl.setRole();
                 }],
                 data: {
                     is_granted: ['ROLE_GUEST']
@@ -86,23 +88,28 @@
             });
     } 
 
-    run.$inject = ['$rootScope', '$cookieStore', '$http', 'crAcl'];
+    run.$inject = ['$rootScope', '$cookieStore', '$state', 'crAcl'];
+    function run($rootScope, $cookieStore, $state, crAcl) {
+        // keep user logged in after page refresh
+        $rootScope.globals = $cookieStore.get('globals') || {};
 
-    function run($rootScope, $cookieStore, $http, crAcl) {
-        // $rootScope.globals = $cookieStore.get('globals') || {};
-        // $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-        //
-        // crAcl
-        //     .setInheritanceRoles({
-        //         'ROLE_ADMIN': ['ROLE_ADMIN', 'ROLE_GUEST'],
-        //         'ROLE_USER': ['ROLE_USER', 'ROLE_GUEST'],
-        //         'ROLE_GUEST': ['ROLE_GUEST']
-        //     });
-        //
-        crAcl.setRedirect('main.watch');
-        crAcl.setRole();
+        crAcl
+            .setInheritanceRoles({
+                'ROLE_ADMIN': ['ROLE_ADMIN', 'ROLE_GUEST'],
+                'ROLE_GUEST': ['ROLE_GUEST']
+            });
 
-        
+        crAcl
+            .setRedirect('main.watch');
+
+        if ($rootScope.globals.currentUser) {
+            crAcl.setRole($rootScope.globals.currentUser.metadata.role);
+            // $state.go('admin.watches');
+        }
+        else {
+            crAcl.setRole();
+        }
+
     }
 
 })();
@@ -161,12 +168,12 @@
                 abstract: true,
                 templateUrl: '../views/admin/admin.html',
                 // controller: 'AdminCtrl as admin',
-                // data: {
-                //     is_granted: ['ROLE_ADMIN']
-                // }
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
             });
     }
-    
+
 })();
  
 (function () {
@@ -180,12 +187,10 @@
         var vm = this;              
 
         vm.login = login;
-        vm.register = register;
         
         vm.showRegisterForm = false;
         
         vm.loginForm = null;
-        vm.registerForm = null;
         
         vm.credentials = {};
         vm.user = {};
@@ -198,7 +203,7 @@
 
                         crAcl.setRole(currentUser.metadata.role);
                         AuthService.setCredentials(currentUser);
-                        $state.go('main.event.feed');
+                        $state.go('admin.watches');
                     }
                     else
                         Flash.create('danger', 'Incorrect username or password');
@@ -225,30 +230,6 @@
             if (vm.loginForm.$valid)
                 AuthService
                     .checkUsername(credentials)
-                    .then(success, failed);
-        }
-
-        function register(credentials) {
-            function success(response) {
-                $log.info(response);
-
-                var currentUser = response.data.object.metafields;
-
-                Flash.create('success', 'You have successfully signed up!');
-                vm.credentials = {
-                    username: currentUser[0].value,
-                    password: currentUser[3].value
-                };
-                vm.showRegisterForm = false;
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-
-            if (vm.registerForm.$valid)
-                AuthService
-                    .register(credentials)
                     .then(success, failed);
         }
 
@@ -289,57 +270,7 @@
                     }
                 });
             };
-            authService.register = function (user) {
-
-                return $http.post(URL + BUCKET_SLUG + '/add-object', {
-                    title: user.full_name,
-                    type_slug: 'users',
-                    slug: user.username,
-                    metafields: [
-                        {
-                            key: "username",
-                            type: "text",
-                            value: user.username
-                        },
-                        {
-                            key: "email",
-                            type: "text",
-                            value: user.email
-                        },
-                        {
-                            key: "full_name",
-                            type: "text",
-                            value: user.full_name 
-                        },
-                        {
-                            key: "password",
-                            type: "text",
-                            value: user.password
-                        },
-                        {
-                            key: "image",
-                            type: "file",
-                            value: "3b2180f0-2c40-11e7-85ac-e98751218524-1493421969_male.png"
-                        },
-                        {
-                            key: "role",
-                            type: "radio-buttons",
-                            options: [
-                                {
-                                    value: "ROLE_USER"
-                                },
-                                {
-                                    value: "ROLE_SUPER_ADMIN"
-                                }
-                            ],
-                            value: "ROLE_USER"
-                        }
-                    ],
-
-                    write_key: WRITE_KEY
-                });
-            };
-            authService.setCredentials = function (user) {
+            authService.setCredentials = function (user) { 
                 $rootScope.globals = {
                     currentUser: user
                 };
@@ -1210,9 +1141,9 @@ angular.module("config", [])
                 url: 'orders?key&value',
                 templateUrl: '../views/admin/admin.orders.html',
                 controller: 'AdminOrdersCtrl as vm',
-                // data: {
-                //     is_granted: ['ROLE_ADMIN']
-                // }
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
             });
         
         
@@ -1315,29 +1246,6 @@ angular.module("config", [])
             }
         });
 })();  
-(function () {
-    'use strict';
-    
-    angular
-        .module('admin.watches', [])
-        .config(config);
-
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
- 
-        $stateProvider
-            .state('admin.watches', {
-                url: 'watches?key&value',
-                templateUrl: '../views/admin/admin.watches.html',
-                controller: 'WatchCtrl as vm',
-                // data: {
-                //     is_granted: ['ROLE_ADMIN']
-                // }
-            });
-    }
-    
-})();
- 
 (function () {
     'use strict'; 
 
@@ -1485,6 +1393,29 @@ angular.module("config", [])
                 },
                 data: {
                     is_granted: ['ROLE_USER']
+                }
+            });
+    }
+    
+})();
+ 
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin.watches', [])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+ 
+        $stateProvider
+            .state('admin.watches', {
+                url: 'watches?key&value',
+                templateUrl: '../views/admin/admin.watches.html',
+                controller: 'WatchCtrl as vm',
+                data: {
+                    is_granted: ['ROLE_ADMIN']
                 }
             });
     }
@@ -1876,6 +1807,9 @@ angular.module("config", [])
         $stateProvider
             .state('admin.orders.preview', {
                 url: '/preview/:slug',
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                },
                 onEnter: [
                     'ngDialog',
                     'AdminOrdersService',
