@@ -21,7 +21,7 @@
                 <td><i class="fa fa-dollar"></i> {{watch.metadata.price}}</td>
                 <td>
                     <div class="btn-group">
-                        <button class="btn btn-default btn-sm"><i class="fa fa-pencil"></i></button>
+                        <a ui-sref="admin.watches.edit({slug: watch.slug})" class="btn btn-default btn-sm"><i class="fa fa-pencil"></i></a>
                         <button class="btn btn-default btn-sm"><i class="fa fa-remove"></i></button>
                     </div>
                 </td>

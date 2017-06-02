@@ -58,7 +58,7 @@
                 );
             };
 
-            this.updateEvent = function (event) {
+            this.updateWatch = function (event) {
                 event.write_key = WRITE_KEY;
 
                 return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
@@ -95,7 +95,8 @@
                 return $http.post(URL + BUCKET_SLUG + '/add-object', event);
             };
             this.upload = function (file) {
-                var fd = new FormData(); 
+                var fd = new FormData();
+
                 fd.append('media', file);
                 fd.append('write_key', WRITE_KEY);
 

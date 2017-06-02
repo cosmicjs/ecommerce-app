@@ -2,7 +2,9 @@
     'use strict';
     
     angular
-        .module('admin.watches', [])
+        .module('admin.watches', [
+            'admin.watches.edit'
+        ])
         .config(config);
 
     config.$inject = ['$stateProvider', '$urlRouterProvider'];

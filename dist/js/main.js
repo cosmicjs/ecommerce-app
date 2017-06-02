@@ -817,7 +817,7 @@ angular.module("config", [])
                 );
             };
 
-            this.updateEvent = function (event) {
+            this.updateWatch = function (event) {
                 event.write_key = WRITE_KEY;
 
                 return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
@@ -854,7 +854,8 @@ angular.module("config", [])
                 return $http.post(URL + BUCKET_SLUG + '/add-object', event);
             };
             this.upload = function (file) {
-                var fd = new FormData(); 
+                var fd = new FormData();
+
                 fd.append('media', file);
                 fd.append('write_key', WRITE_KEY);
 
@@ -1247,163 +1248,12 @@ angular.module("config", [])
         });
 })();  
 (function () {
-    'use strict'; 
-
-    angular
-        .module('main')
-        .controller('EventProfileCtrl', EventProfileCtrl);
-
-    function EventProfileCtrl($stateParams, EventService, Notification, $log, $scope, MEDIA_URL, $rootScope, DEFAULT_EVENT_IMAGE) {
-        var vm = this;
-
-        vm.getEvent = getEvent;
-        vm.updateEvent = updateEvent;
-        vm.cancelUpload = cancelUpload;
-        vm.upload = upload;
-
-        vm.dateBeginPicker = false;
-        vm.dateEndPicker = false;
-        vm.contentEditor = false;
-        vm.uploadProgress = 0;
-        
-        vm.event = {}; 
-        vm.flow = {};
-        vm.background = {};
-        
-        vm.flowConfig = {
-            target: MEDIA_URL, 
-            singleFile: true
-        };
-
-        function getEvent() {
-            function success(response) {
-                $log.info(response);
-
-                vm.event = response.data.object;
-
-                vm.event.metafields[1].value = new Date(response.data.object.metadata.date_begin);
-                vm.event.metafields[2].value = new Date(response.data.object.metadata.date_end);
-
-                vm.contentEditor = !vm.event.content;
-
-                vm.background = {
-                    'background-image': 'url(' + (vm.event.metafields[0].value ? vm.event.metafields[0].url : DEFAULT_EVENT_IMAGE) + ')'
-                };
-
-                // vm.event.content = $sce.trustAsHtml(response.data.object.content);
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-
-            EventService
-                .getEventById($stateParams.slug)
-                .then(success, failed);
-        }
-        
-        function updateEvent(event) {
-            function success(response) {
-                $log.info(response);
-
-                Notification.primary(
-                    {
-                        message: 'Saved',
-                        delay: 800,
-                        replaceMessage: true
-                    }
-                );
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-
-            if ($rootScope.globals.currentUser._id === event.metadata.user._id)
-                EventService
-                    .updateEvent(event)
-                    .then(success, failed);
-            else
-                Notification.warning("You can't update");
-        }
-
-        function cancelUpload() {
-            vm.flow.cancel();
-            vm.background = {
-                'background-image': 'url(' + (vm.event.metafields[0].value ? vm.event.metafields[0].url : DEFAULT_EVENT_IMAGE) + ')'
-            };
-        }
-
-        $scope.$watch('vm.flow.files[0].file.name', function () {
-            if (!vm.flow.files[0]) {
-                return ;
-            }
-            var fileReader = new FileReader();
-            fileReader.readAsDataURL(vm.flow.files[0].file);
-            fileReader.onload = function (event) {
-                $scope.$apply(function () {
-                    vm.background = {
-                        'background-image': 'url(' + event.target.result + ')'
-                    };
-                });
-            };
-        });
-
-        function upload() {
-
-            EventService
-                .upload(vm.flow.files[0].file)
-                .then(function(response){
-
-                    vm.event.metafields[0].value = response.media.name;
-
-                    updateEvent(vm.event);
-                    vm.flow.cancel();
-                    vm.uploadProgress = 0;
-
-                }, function(){
-                    console.log('failed :(');
-                }, function(progress){
-                    vm.uploadProgress = progress;
-                });
-
-        }
-
-    }
-})();
-
-(function () {
     'use strict';
     
     angular
-        .module('event.profile', [])
-        .config(config);
-
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
- 
-        $stateProvider
-            .state('main.event.profile', {
-                url: '/slugs/:slug',
-                views: {
-                    '@main': {
-                        templateUrl: '../views/event/event.profile.html',
-                        controller: 'EventProfileCtrl as vm'
-                    }
-                },
-                data: {
-                    is_granted: ['ROLE_USER']
-                }
-            });
-    }
-    
-})();
- 
-(function () {
-    'use strict';
-    
-    angular
-        .module('admin.watches', [])
+        .module('admin.watches', [
+            'admin.watches.edit'
+        ])
         .config(config);
 
     config.$inject = ['$stateProvider', '$urlRouterProvider'];
@@ -1848,5 +1698,196 @@ angular.module("config", [])
                     }]
             });
     }
+})();
+ 
+(function () {
+    'use strict'; 
+
+    angular
+        .module('main')
+        .controller('AdminWatchesEdit', AdminWatchesEdit);
+
+    function AdminWatchesEdit($state, WatchService, Notification, $log, $scope, MEDIA_URL, ngDialog) {
+        var vm = this;
+
+        vm.getEvent = getEvent;
+        vm.updateWatch = updateWatch;
+        vm.cancelUpload = cancelUpload;
+        vm.upload = upload;
+
+        vm.dateBeginPicker = false;
+        vm.dateEndPicker = false;
+        vm.contentEditor = false;
+        vm.uploadProgress = [0, 0, 0];
+
+        vm.event = {};
+        vm.flow = {};
+        vm.background = {};
+
+        vm.flowConfig = {
+            target: MEDIA_URL,
+            singleFile: false
+        };
+
+        function getEvent() {
+            function success(response) {
+                $log.info(response);
+
+                vm.event = response.data.object;
+
+                vm.event.metafields[1].value = new Date(response.data.object.metadata.date_begin);
+                vm.event.metafields[2].value = new Date(response.data.object.metadata.date_end);
+
+                vm.contentEditor = !vm.event.content;
+
+                vm.background = {
+                    'background-image': 'url(' + (vm.event.metafields[0].value ? vm.event.metafields[0].url : DEFAULT_EVENT_IMAGE) + ')'
+                };
+
+                // vm.event.content = $sce.trustAsHtml(response.data.object.content);
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+            //
+            // EventService
+            //     .getEventById($stateParams.slug)
+            //     .then(success, failed);
+        }
+        
+        function updateWatch(watch) {
+            function success(response) {
+                $log.info(response);
+
+                Notification.primary(
+                    {
+                        message: 'Saved',
+                        delay: 800,
+                        replaceMessage: true
+                    }
+                );
+
+                $state.go('admin.watches', null, {reload: true});
+                ngDialog.close();
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+
+            if (vm.flow.files.length &&
+                vm.uploadProgress[0] === 100 &&
+                vm.uploadProgress[1] === 100 &&
+                vm.uploadProgress[2] === 100)
+                WatchService
+                    .updateWatch(watch)
+                    .then(success, failed);
+            else
+                WatchService
+                    .updateWatch(watch)
+                    .then(success, failed);
+        }
+
+        function cancelUpload() {
+            vm.flow.cancel();
+            vm.background = {
+                'background-image': 'url(' + (vm.event.metafields[0].value ? vm.event.metafields[0].url : DEFAULT_EVENT_IMAGE) + ')'
+            };
+        }
+
+        $scope.$watch('vm.flow.files[0].file.name', function () {
+            if (!vm.flow.files[0]) {
+                return ;
+            }
+            var fileReader = new FileReader();
+            fileReader.readAsDataURL(vm.flow.files[0].file);
+            fileReader.onload = function (event) {
+                $scope.$apply(function () {
+                    vm.image = {
+                        'background-image': 'url(' + event.target.result + ')'
+                    };
+                });
+            };
+        });
+
+        function upload() {
+            vm.flow.files.forEach(function (item, i) {
+                if (i < 3)
+                    WatchService
+                        .upload(item.file)
+                        .then(function(response){
+
+                            $scope.ngDialogData.metafields[11].children[i].value = response.media.name;
+
+                        }, function(){
+                            console.log('failed :(');
+                        }, function(progress){
+                            vm.uploadProgress[i] = progress;
+                        });
+            });
+
+        }
+
+    }
+})();
+
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin.watches.edit', [])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+ 
+        $stateProvider
+            .state('admin.watches.edit', {
+                url: '/edit/:slug',
+                onEnter: [
+                'ngDialog',
+                'WatchService',
+                '$stateParams',
+                '$state',
+                '$log',
+                function (ngDialog, WatchService, $stateParams, $state, $log) {
+                    getWatch($stateParams.slug);
+    
+                    function getWatch(slug) {
+                        function success(response) {
+                            openDialog(response.data.object);
+                        }
+    
+                        function failed(response) {
+                            $log.error(response);
+                        }
+ 
+                        WatchService
+                            .getWatchBySlug(slug)
+                            .then(success, failed);
+                    }
+    
+                    function openDialog(data) {
+    
+                        var options = {
+                            templateUrl: '../views/admin/admin.watches.edit.html',
+                            data: data,
+                            controller: 'AdminWatchesEdit as vm',
+                            showClose: true
+                        };
+    
+                        ngDialog.open(options).closePromise.finally(function () {
+                            $state.go('admin.watches');
+                        });
+                    }
+                }],
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
+            });
+    }
+    
 })();
  

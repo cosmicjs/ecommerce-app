@@ -1,0 +1,40 @@
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Edit</h4>
+        <form name="vm.watchEditForm" class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="ngDialogData.title">
+                </div>
+            </div>
+            <div class="col-sm-6" ng-repeat="(key, item) in ngDialogData.metadata" ng-if="key !== 'images'">
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="item">
+                </div>
+            </div>
+        </form>
+        <div class="row"
+             flow-init="vm.flowConfig"
+             flow-name="vm.flow"
+             flow-file-added="vm.flow.files.length < 3">
+            <div class="col-sm-4" ng-repeat="(key, image) in ngDialogData.metadata.images track by $index">
+                <div class="thumbnail">
+                    <img ng-if="!vm.flow.files[$index]" ng-src="{{image.url}}" alt="key">
+                    <img ng-if="vm.flow.files[$index]" flow-img="vm.flow.files[$index]">
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <button ng-show="!vm.flow.files.length" class="btn btn-primary btn-block btn-sm" flow-btn>Change images</button>
+                <div ng-show="vm.flow.files.length" >
+                    <uib-progressbar class="event-progress active" max="100" value="vm.uploadProgress[0]"></uib-progressbar>
+                    <uib-progressbar class="event-progress active" max="100" value="vm.uploadProgress[1]"></uib-progressbar>
+                    <uib-progressbar class="event-progress active" max="100" value="vm.uploadProgress[2]"></uib-progressbar>
+                    <button class="btn btn-default btn-block btn-sm" ng-click="vm.flow.cancel()">Cancel</button>
+                    <button class="btn btn-primary btn-block btn-sm" ng-click="vm.upload()">Upload</button>
+                </div>
+                <hr>
+                <button class="btn btn-success btn-block" ng-class="{'disabled': vm.flow.files.length && vm.uploadProgress[0] !== 100 && vm.uploadProgress[1] !== 100 && vm.uploadProgress[2] !== 100}" ng-click="vm.updateWatch(ngDialogData)">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
