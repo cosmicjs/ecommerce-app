@@ -116,6 +116,68 @@
 
     angular
         .module('main')
+        .controller('AdminCtrl', UserCtrl);
+
+    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
+        var vm = this;
+        
+        vm.currentUser = $rootScope.globals.currentUser.metadata;
+        
+        vm.logout = logout;
+
+        function logout() {
+            function success(response) {
+                $state.go('auth');
+
+                $log.info(response);
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            AuthService
+                .clearCredentials()
+                .then(success, failed);
+        }
+
+        $scope.state = $state;
+
+    }
+})();
+
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin', [
+            'admin.watches',
+            'admin.orders'
+        ])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+
+        $stateProvider
+            .state('admin', {
+                url: '/admin/',
+                abstract: true,
+                templateUrl: '../views/admin/admin.html',
+                // controller: 'AdminCtrl as admin',
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
+            });
+    }
+
+})();
+ 
+(function () {
+    'use strict'; 
+
+    angular
+        .module('main')
         .controller('AuthCtrl', AuthCtrl);
 
     function AuthCtrl(crAcl, $state, AuthService, Flash, $log) {
@@ -227,68 +289,6 @@
             };
         });  
 })();  
-(function () {
-    'use strict'; 
-
-    angular
-        .module('main')
-        .controller('AdminCtrl', UserCtrl);
-
-    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
-        var vm = this;
-        
-        vm.currentUser = $rootScope.globals.currentUser.metadata;
-        
-        vm.logout = logout;
-
-        function logout() {
-            function success(response) {
-                $state.go('auth');
-
-                $log.info(response);
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-
-            AuthService
-                .clearCredentials()
-                .then(success, failed);
-        }
-
-        $scope.state = $state;
-
-    }
-})();
-
-(function () {
-    'use strict';
-    
-    angular
-        .module('admin', [
-            'admin.watches',
-            'admin.orders'
-        ])
-        .config(config);
-
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
-
-        $stateProvider
-            .state('admin', {
-                url: '/admin/',
-                abstract: true,
-                templateUrl: '../views/admin/admin.html',
-                // controller: 'AdminCtrl as admin',
-                data: {
-                    is_granted: ['ROLE_ADMIN']
-                }
-            });
-    }
-
-})();
- 
 (function () {
     'use strict'; 
 
@@ -598,7 +598,8 @@ angular.module("config", [])
 .constant("URL", "https://api.cosmicjs.com/v1/")
 .constant("MEDIA_URL", "https://api.cosmicjs.com/v1/ecommerce/media")
 .constant("READ_KEY", "jeWoV272iDKNwCfU2iniaVWP35qEDOohLWPNPuUdDXcE6P6D7M")
-.constant("WRITE_KEY", "05e1ks18jIQrkefSHP6DBQBiYZ32WSAyuTOZxrFGwnRjBQAM57");
+.constant("WRITE_KEY", "05e1ks18jIQrkefSHP6DBQBiYZ32WSAyuTOZxrFGwnRjBQAM57")
+.constant("STRIPE_KEY", "pk_test_6pRNASCoBOKtIshFeQd4XMUh");
 
 (function () {
     'use strict';

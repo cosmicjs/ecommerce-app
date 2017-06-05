@@ -27,8 +27,6 @@
         <div class="row">
             <div class="col-md-6">
                 <a class="btn btn-primary btn-lg" ui-sref="main.cart.checkout" ng-class="{'disabled': !cart.watches.length}">Checkout</a>
-                <span>or</span>
-                <button class="btn btn-success btn-lg" ng-click="cart.stripeCheckout()">Buy</button>
             </div>
             <div class="col-md-6 text-right"><h3>Total: <b><i class="fa fa-dollar"></i> {{cart.totalPrice}}</b></h3></div>
         </div>
