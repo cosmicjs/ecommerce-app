@@ -4,12 +4,17 @@
         <form name="vm.watchEditForm" class="row">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <input type="text" class="form-control" ng-model="ngDialogData.title">
+                    <input type="text" class="form-control" ng-model="ngDialogData.title" placeholder="Title">
                 </div>
             </div>
-            <div class="col-sm-6" ng-repeat="(key, item) in ngDialogData.metadata" ng-if="key !== 'images'">
+            <div class="col-sm-6" ng-repeat="item in ngDialogData.metafields" ng-if="item.key !== 'images'">
                 <div class="form-group">
-                    <input type="text" class="form-control" ng-model="item">
+                    <input type="text" class="form-control" ng-model="item.value" placeholder="{{item.title}}">
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div text-angular="" ng-model="ngDialogData.content"></div>
                 </div>
             </div>
         </form>
@@ -17,9 +22,9 @@
              flow-init="vm.flowConfig"
              flow-name="vm.flow"
              flow-file-added="vm.flow.files.length < 3">
-            <div class="col-sm-4" ng-repeat="(key, image) in ngDialogData.metadata.images track by $index">
+            <div class="col-sm-4" ng-repeat="image in ngDialogData.metafields[11].children track by $index">
                 <div class="thumbnail">
-                    <img ng-if="!vm.flow.files[$index]" ng-src="{{image.url}}" alt="key">
+                    <img ng-if="!vm.flow.files[$index]" ng-src="{{image.url}}">
                     <img ng-if="vm.flow.files[$index]" flow-img="vm.flow.files[$index]">
                 </div>
             </div>

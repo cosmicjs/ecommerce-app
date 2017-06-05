@@ -3,23 +3,18 @@
 
     angular
         .module('main')
-        .controller('AdminWatchesEdit', AdminWatchesEdit);
+        .controller('AdminWatchesAdd', AdminWatchesAdd);
 
-    function AdminWatchesEdit($state, WatchService, Notification, $log, $scope, MEDIA_URL, ngDialog) {
+    function AdminWatchesAdd($state, WatchService, Notification, $log, $scope, MEDIA_URL, ngDialog) {
         var vm = this;
 
         vm.updateWatch = updateWatch;
-        vm.cancelUpload = cancelUpload;
         vm.upload = upload;
 
-        vm.dateBeginPicker = false;
-        vm.dateEndPicker = false;
-        vm.contentEditor = false;
         vm.uploadProgress = [0, 0, 0];
 
         vm.event = {};
         vm.flow = {};
-        vm.background = {};
 
         vm.flowConfig = {
             target: MEDIA_URL,
@@ -52,35 +47,13 @@
                 vm.uploadProgress[1] === 100 &&
                 vm.uploadProgress[2] === 100)
                 WatchService
-                    .updateWatch(watch)
+                    .createWatch(watch)
                     .then(success, failed);
             else
                 WatchService
-                    .updateWatch(watch)
+                    .createWatch(watch)
                     .then(success, failed);
         }
-
-        function cancelUpload() {
-            vm.flow.cancel();
-            vm.background = {
-                'background-image': 'url(' + (vm.event.metafields[0].value ? vm.event.metafields[0].url : DEFAULT_EVENT_IMAGE) + ')'
-            };
-        }
-
-        $scope.$watch('vm.flow.files[0].file.name', function () {
-            if (!vm.flow.files[0]) {
-                return ;
-            }
-            var fileReader = new FileReader();
-            fileReader.readAsDataURL(vm.flow.files[0].file);
-            fileReader.onload = function (event) {
-                $scope.$apply(function () {
-                    vm.image = {
-                        'background-image': 'url(' + event.target.result + ')'
-                    };
-                });
-            };
-        });
 
         function upload() {
             vm.flow.files.forEach(function (item, i) {

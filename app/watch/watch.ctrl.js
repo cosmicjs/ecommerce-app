@@ -9,6 +9,7 @@
         var vm = this;
 
         vm.getWatches = getWatches;
+        vm.removeWatch = removeWatch;
 
         vm.params = $stateParams;
 
@@ -51,6 +52,23 @@
             WatchService
                 .getWatchesParams()
                 .then(params);
+        }
+
+        function removeWatch(slug) {
+            function success(response) {
+                $log.info(response);
+                getWatches();
+                Notification.success('Removed!');
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+            
+            WatchService
+                .removeWatch(slug)
+                .then(success, failed);
+
         }
 
     }

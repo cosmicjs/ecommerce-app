@@ -689,6 +689,7 @@ angular.module("config", [])
         var vm = this;
 
         vm.getWatches = getWatches;
+        vm.removeWatch = removeWatch;
 
         vm.params = $stateParams;
 
@@ -733,6 +734,23 @@ angular.module("config", [])
                 .then(params);
         }
 
+        function removeWatch(slug) {
+            function success(response) {
+                $log.info(response);
+                getWatches();
+                Notification.success('Removed!');
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+            
+            WatchService
+                .removeWatch(slug)
+                .then(success, failed);
+
+        }
+
     }
 })();
 
@@ -770,6 +788,103 @@ angular.module("config", [])
             
             $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+            this.watch = {
+                title: null,
+                type_slug: 'watches',
+                content: null,
+                metafields: [
+                    {
+                        key: "category",
+                        title: "Category",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "brand",
+                        title: "Brand",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "case_size",
+                        title: "Case Size",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "case_thickness",
+                        title: "Case Thickness",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "strap_width",
+                        title: "Strap Width",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "movement",
+                        title: "Movement",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "glass",
+                        title: "Glass",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "water_resistance",
+                        title: "Water Resistance",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "color",
+                        title: "Color",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "strap_material",
+                        title: "Strap Material",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "price",
+                        title: "Price",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "images",
+                        title: "Images",
+                        type: "parent",
+                        value: "",
+                        children: [
+                            {
+                                key: "image_1",
+                                title: "Image_1",
+                                type: "file"
+                            },
+                            {
+                                key: "image_2",
+                                title: "Image_2",
+                                type: "file"
+                            },
+                            {
+                                key: "image_3",
+                                title: "Image_3",
+                                type: "file"
+                            }
+                        ]
+                    }
+                ]
+            };
+
             this.getWatches = function (params) {
                 if (!angular.equals({}, params))
                     return $http.get(URL + BUCKET_SLUG + '/object-type/watches/search', {
@@ -803,26 +918,12 @@ angular.module("config", [])
                     }
                 });
             };
-            this.getEventsByUsername = function (username, ignoreLoadingBar) {
-                return $http.get(URL + BUCKET_SLUG + '/object-type/events/search',
-                    {
-                        ignoreLoadingBar: ignoreLoadingBar,
-                        params: {
-                            metafield_key: 'user',
-                            metafield_object_slug: username,
-                            limit: 10,
-                            read_key: READ_KEY
-                        }
-                    }
-                );
-            };
-
             this.updateWatch = function (event) {
                 event.write_key = WRITE_KEY;
 
                 return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
             };
-            this.removeEvent = function (slug) {
+            this.removeWatch = function (slug) {
                 return $http.delete(URL + BUCKET_SLUG + '/' + slug, {
                     ignoreLoadingBar: true,
                     headers:{
@@ -833,25 +934,10 @@ angular.module("config", [])
                     }
                 });
             };
-            this.createEvent = function (event) {
-                event.write_key = WRITE_KEY;
-
-                var beginDate = new Date(event.metafields[1].value);
-                var endDate = new Date(event.metafields[2].value);
-
-                event.metafields[1].value = beginDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + beginDate.getDate();
-                event.metafields[2].value = endDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + endDate.getDate();
-
-                event.slug = event.title;
-                event.type_slug = 'events';
-
-                event.metafields[4] = {
-                    key: "user",
-                    type: "object",
-                    object_type: "users",
-                    value: $rootScope.globals.currentUser._id
-                };
-                return $http.post(URL + BUCKET_SLUG + '/add-object', event);
+            this.createWatch = function (watch) {
+                watch.write_key = WRITE_KEY;
+                
+                return $http.post(URL + BUCKET_SLUG + '/add-object', watch);
             };
             this.upload = function (file) {
                 var fd = new FormData();
@@ -1252,7 +1338,8 @@ angular.module("config", [])
     
     angular
         .module('admin.watches', [
-            'admin.watches.edit'
+            'admin.watches.edit',
+            'admin.watches.add'
         ])
         .config(config);
 
@@ -1705,12 +1792,133 @@ angular.module("config", [])
 
     angular
         .module('main')
+        .controller('AdminWatchesAdd', AdminWatchesAdd);
+
+    function AdminWatchesAdd($state, WatchService, Notification, $log, $scope, MEDIA_URL, ngDialog) {
+        var vm = this;
+
+        vm.updateWatch = updateWatch;
+        vm.upload = upload;
+
+        vm.uploadProgress = [0, 0, 0];
+
+        vm.event = {};
+        vm.flow = {};
+
+        vm.flowConfig = {
+            target: MEDIA_URL,
+            singleFile: false
+        };
+
+        function updateWatch(watch) {
+            function success(response) {
+                $log.info(response);
+
+                Notification.primary(
+                    {
+                        message: 'Saved',
+                        delay: 800,
+                        replaceMessage: true
+                    }
+                );
+
+                $state.go('admin.watches', null, {reload: true});
+                ngDialog.close();
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+
+            if (vm.flow.files.length &&
+                vm.uploadProgress[0] === 100 &&
+                vm.uploadProgress[1] === 100 &&
+                vm.uploadProgress[2] === 100)
+                WatchService
+                    .createWatch(watch)
+                    .then(success, failed);
+            else
+                WatchService
+                    .createWatch(watch)
+                    .then(success, failed);
+        }
+
+        function upload() {
+            vm.flow.files.forEach(function (item, i) {
+                if (i < 3)
+                    WatchService
+                        .upload(item.file)
+                        .then(function(response){
+
+                            $scope.ngDialogData.metafields[11].children[i].value = response.media.name;
+
+                        }, function(){
+                            console.log('failed :(');
+                        }, function(progress){
+                            vm.uploadProgress[i] = progress;
+                        });
+            });
+
+        }
+
+    }
+})();
+
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin.watches.add', [])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+ 
+        $stateProvider
+            .state('admin.watches.add', {
+                url: '/add',
+                onEnter: [
+                'ngDialog',
+                'WatchService',
+                '$stateParams',
+                '$state',
+                '$log',
+                function (ngDialog, WatchService, $stateParams, $state, $log) {
+                    openDialog(WatchService.watch);
+                        
+                    function openDialog(data) {
+    
+                        var options = {
+                            templateUrl: '../views/admin/admin.watches.edit.html',
+                            data: data,
+                            controller: 'AdminWatchesAdd as vm',
+                            showClose: true
+                        };
+    
+                        ngDialog.open(options).closePromise.finally(function () {
+                            $state.go('admin.watches');
+                        });
+                    }
+                }],
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
+            });
+    }
+    
+})();
+ 
+(function () {
+    'use strict'; 
+
+    angular
+        .module('main')
         .controller('AdminWatchesEdit', AdminWatchesEdit);
 
     function AdminWatchesEdit($state, WatchService, Notification, $log, $scope, MEDIA_URL, ngDialog) {
         var vm = this;
 
-        vm.getEvent = getEvent;
         vm.updateWatch = updateWatch;
         vm.cancelUpload = cancelUpload;
         vm.upload = upload;
@@ -1729,33 +1937,6 @@ angular.module("config", [])
             singleFile: false
         };
 
-        function getEvent() {
-            function success(response) {
-                $log.info(response);
-
-                vm.event = response.data.object;
-
-                vm.event.metafields[1].value = new Date(response.data.object.metadata.date_begin);
-                vm.event.metafields[2].value = new Date(response.data.object.metadata.date_end);
-
-                vm.contentEditor = !vm.event.content;
-
-                vm.background = {
-                    'background-image': 'url(' + (vm.event.metafields[0].value ? vm.event.metafields[0].url : DEFAULT_EVENT_IMAGE) + ')'
-                };
-
-                // vm.event.content = $sce.trustAsHtml(response.data.object.content);
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-            //
-            // EventService
-            //     .getEventById($stateParams.slug)
-            //     .then(success, failed);
-        }
-        
         function updateWatch(watch) {
             function success(response) {
                 $log.info(response);

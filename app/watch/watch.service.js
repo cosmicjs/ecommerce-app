@@ -11,6 +11,103 @@
             
             $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+            this.watch = {
+                title: null,
+                type_slug: 'watches',
+                content: null,
+                metafields: [
+                    {
+                        key: "category",
+                        title: "Category",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "brand",
+                        title: "Brand",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "case_size",
+                        title: "Case Size",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "case_thickness",
+                        title: "Case Thickness",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "strap_width",
+                        title: "Strap Width",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "movement",
+                        title: "Movement",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "glass",
+                        title: "Glass",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "water_resistance",
+                        title: "Water Resistance",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "color",
+                        title: "Color",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "strap_material",
+                        title: "Strap Material",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "price",
+                        title: "Price",
+                        type: "text",
+                        value: null
+                    },
+                    {
+                        key: "images",
+                        title: "Images",
+                        type: "parent",
+                        value: "",
+                        children: [
+                            {
+                                key: "image_1",
+                                title: "Image_1",
+                                type: "file"
+                            },
+                            {
+                                key: "image_2",
+                                title: "Image_2",
+                                type: "file"
+                            },
+                            {
+                                key: "image_3",
+                                title: "Image_3",
+                                type: "file"
+                            }
+                        ]
+                    }
+                ]
+            };
+
             this.getWatches = function (params) {
                 if (!angular.equals({}, params))
                     return $http.get(URL + BUCKET_SLUG + '/object-type/watches/search', {
@@ -44,26 +141,12 @@
                     }
                 });
             };
-            this.getEventsByUsername = function (username, ignoreLoadingBar) {
-                return $http.get(URL + BUCKET_SLUG + '/object-type/events/search',
-                    {
-                        ignoreLoadingBar: ignoreLoadingBar,
-                        params: {
-                            metafield_key: 'user',
-                            metafield_object_slug: username,
-                            limit: 10,
-                            read_key: READ_KEY
-                        }
-                    }
-                );
-            };
-
             this.updateWatch = function (event) {
                 event.write_key = WRITE_KEY;
 
                 return $http.put(URL + BUCKET_SLUG + '/edit-object', event);
             };
-            this.removeEvent = function (slug) {
+            this.removeWatch = function (slug) {
                 return $http.delete(URL + BUCKET_SLUG + '/' + slug, {
                     ignoreLoadingBar: true,
                     headers:{
@@ -74,25 +157,10 @@
                     }
                 });
             };
-            this.createEvent = function (event) {
-                event.write_key = WRITE_KEY;
-
-                var beginDate = new Date(event.metafields[1].value);
-                var endDate = new Date(event.metafields[2].value);
-
-                event.metafields[1].value = beginDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + beginDate.getDate();
-                event.metafields[2].value = endDate.getFullYear() + '-' + (beginDate.getMonth() + 1) + '-' + endDate.getDate();
-
-                event.slug = event.title;
-                event.type_slug = 'events';
-
-                event.metafields[4] = {
-                    key: "user",
-                    type: "object",
-                    object_type: "users",
-                    value: $rootScope.globals.currentUser._id
-                };
-                return $http.post(URL + BUCKET_SLUG + '/add-object', event);
+            this.createWatch = function (watch) {
+                watch.write_key = WRITE_KEY;
+                
+                return $http.post(URL + BUCKET_SLUG + '/add-object', watch);
             };
             this.upload = function (file) {
                 var fd = new FormData();

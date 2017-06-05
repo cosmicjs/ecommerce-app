@@ -13,7 +13,7 @@
             </tr>
             <tr ng-repeat="watch in vm.watches">
                 <td>{{$index + 1}}</td>
-                <td><img ng-src="{{watch.metadata.images.image_1.url}}" width="50"></td>
+                <td><img ng-show="watch.metadata.images.image_1" ng-src="{{watch.metadata.images.image_1.url}}" width="50"></td>
                 <td><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></td>
                 <td><a ui-sref="admin.watches({key: 'brand', value: watch.metadata.brand})">{{watch.metadata.brand}}</a></td>
                 <td><a ui-sref="admin.watches({key: 'color', value: watch.metadata.color})">{{watch.metadata.color}}</a></td>
@@ -22,11 +22,11 @@
                 <td>
                     <div class="btn-group">
                         <a ui-sref="admin.watches.edit({slug: watch.slug})" class="btn btn-default btn-sm"><i class="fa fa-pencil"></i></a>
-                        <button class="btn btn-default btn-sm"><i class="fa fa-remove"></i></button>
+                        <button class="btn btn-default btn-sm" ng-click="vm.removeWatch(watch.slug)"><i class="fa fa-remove"></i></button>
                     </div>
                 </td>
             </tr>
         </table>
-        <button class="btn btn-success"><i class="fa fa-plus-circle"></i> Add watch</button>
+        <a ui-sref="admin.watches.add" class="btn btn-success"><i class="fa fa-plus-circle"></i> Add watch</a>
     </div>
 </div>

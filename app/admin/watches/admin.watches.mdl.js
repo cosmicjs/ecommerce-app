@@ -3,7 +3,8 @@
     
     angular
         .module('admin.watches', [
-            'admin.watches.edit'
+            'admin.watches.edit',
+            'admin.watches.add'
         ])
         .config(config);
 
