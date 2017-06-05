@@ -45,7 +45,7 @@
             var crAcl = $injector.get("crAcl");
 
             var state = "";
-console.log(crAcl.getRole());
+            
             switch (crAcl.getRole()) {
                 case 'ROLE_ADMIN':
                     state = 'admin.watches';
@@ -69,10 +69,7 @@ console.log(crAcl.getRole());
             })
             .state('blog', {
                 url: '/blog',
-                templateUrl: '../blog.html', 
-                data: {
-                    is_granted: ['ROLE_USER']
-                }
+                templateUrl: '../blog.html'
             })
             .state('auth', {
                 url: '/login',
