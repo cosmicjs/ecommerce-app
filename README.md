@@ -10,7 +10,6 @@ npm install
 
 COSMIC_BUCKET=your-bucket-slug READ_KEY=your-read-key WRITE_KEY=your-write-key npm start
 ```
-Go to http://localhost:3000.
 
 #### Building Ecommerce App:
 ```
