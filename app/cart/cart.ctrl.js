@@ -31,15 +31,19 @@
 
         window.addEventListener('popstate', function() {
             handler.close();
+
         });
         
-        function stripeCheckout() {
-            handler.open({
-                name: 'Ecommerce App',
-                description: vm.watches.length + ' watches',
-                zipCode: true,
-                amount: vm.totalPrice * 100
-            });
+        function stripeCheckout(order) {
+            if (vm.orderForm.$valid) {
+                handler.open({
+                    name: 'Ecommerce App',
+                    description: vm.watches.length + ' watches',
+                    zipCode: true,
+                    amount: vm.totalPrice * 100
+                });
+                completeOrder(order);
+            }
         }
 
         function addToCart(item) {
@@ -63,7 +67,7 @@
             order.watches = vm.watches;
 
             function success(response) {
-                Notification.success('Success');
+
 
             }
 
@@ -71,7 +75,7 @@
                 Notification.error(response.data.message);
             }
 
-            if (vm.orderForm)
+            if (vm.orderForm.$valid)
                 CartService
                     .completeOrder(order)
                     .then(success, failed);

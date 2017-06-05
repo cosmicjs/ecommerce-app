@@ -75,9 +75,7 @@
                         </form>
 
                         <div class="pull-right">
-                            <button class="btn btn-primary" ng-class="{'disabled': cart.orderForm.$invalid}" ng-click="cart.completeOrder(cart.order)">Complete Order</button>
-                            <span>or</span>
-                            <button class="btn btn-success" ng-click="cart.stripeCheckout()">Buy</button>
+                            <button class="btn btn-primary" ng-class="{'disabled': cart.orderForm.$invalid}" ng-click="cart.stripeCheckout(cart.order)">Complete Order</button>
                         </div>
                     </div>
                 </div>
