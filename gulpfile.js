@@ -32,7 +32,8 @@ gulp.task('config', function () {
         MEDIA_URL: 'https://api.cosmicjs.com/v1/' + process.env.COSMIC_BUCKET + '/media',
         URL: 'https://api.cosmicjs.com/v1/',
         READ_KEY: process.env.COSMIC_READ_KEY || '',
-        WRITE_KEY: process.env.COSMIC_WRITE_KEY || ''
+        WRITE_KEY: process.env.COSMIC_WRITE_KEY || '',
+        STRIPE_KEY: process.env.STRIPE_KEY || ''
     });
     return b2v.stream(new Buffer(json), 'config.js')
         .pipe(gulpNgConfig('config'))

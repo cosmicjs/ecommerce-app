@@ -116,68 +116,6 @@
 
     angular
         .module('main')
-        .controller('AdminCtrl', UserCtrl);
-
-    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
-        var vm = this;
-        
-        vm.currentUser = $rootScope.globals.currentUser.metadata;
-        
-        vm.logout = logout;
-
-        function logout() {
-            function success(response) {
-                $state.go('auth');
-
-                $log.info(response);
-            }
-
-            function failed(response) {
-                $log.error(response);
-            }
-
-            AuthService
-                .clearCredentials()
-                .then(success, failed);
-        }
-
-        $scope.state = $state;
-
-    }
-})();
-
-(function () {
-    'use strict';
-    
-    angular
-        .module('admin', [
-            'admin.watches',
-            'admin.orders'
-        ])
-        .config(config);
-
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
-
-        $stateProvider
-            .state('admin', {
-                url: '/admin/',
-                abstract: true,
-                templateUrl: '../views/admin/admin.html',
-                // controller: 'AdminCtrl as admin',
-                data: {
-                    is_granted: ['ROLE_ADMIN']
-                }
-            });
-    }
-
-})();
- 
-(function () {
-    'use strict'; 
-
-    angular
-        .module('main')
         .controller('AuthCtrl', AuthCtrl);
 
     function AuthCtrl(crAcl, $state, AuthService, Flash, $log) {
@@ -294,9 +232,71 @@
 
     angular
         .module('main')
+        .controller('AdminCtrl', UserCtrl);
+
+    function UserCtrl($rootScope, $scope, $state, AuthService, Flash, $log) {
+        var vm = this;
+        
+        vm.currentUser = $rootScope.globals.currentUser.metadata;
+        
+        vm.logout = logout;
+
+        function logout() {
+            function success(response) {
+                $state.go('auth');
+
+                $log.info(response);
+            }
+
+            function failed(response) {
+                $log.error(response);
+            }
+
+            AuthService
+                .clearCredentials()
+                .then(success, failed);
+        }
+
+        $scope.state = $state;
+
+    }
+})();
+
+(function () {
+    'use strict';
+    
+    angular
+        .module('admin', [
+            'admin.watches',
+            'admin.orders'
+        ])
+        .config(config);
+
+    config.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function config($stateProvider, $urlRouterProvider) {
+
+        $stateProvider
+            .state('admin', {
+                url: '/admin/',
+                abstract: true,
+                templateUrl: '../views/admin/admin.html',
+                // controller: 'AdminCtrl as admin',
+                data: {
+                    is_granted: ['ROLE_ADMIN']
+                }
+            });
+    }
+
+})();
+ 
+(function () {
+    'use strict'; 
+
+    angular
+        .module('main')
         .controller('CartCtrl', CartCtrl);
 
-    function CartCtrl(CartService, WatchService, Notification, $log, MEDIA_URL, $state) {
+    function CartCtrl(CartService, WatchService, Notification, STRIPE_KEY, $log) {
         var vm = this;
 
         vm.addToCart = addToCart;
@@ -304,12 +304,34 @@
         vm.hasInCart = hasInCart;
         vm.removeFromCart = removeFromCart;
         vm.completeOrder = completeOrder;
+        vm.stripeCheckout = stripeCheckout;
 
         vm.cart = {};
         vm.cart.order = {};
         vm.watches = [];
         vm.totalPrice = 0;
         vm.orderForm = null;
+
+        var handler = StripeCheckout.configure({
+            key: STRIPE_KEY,
+            image: 'https://cosmicjs.com/images/logo.svg',
+            locale: 'auto',
+            token: function(token) {
+            }
+        });
+
+        window.addEventListener('popstate', function() {
+            handler.close();
+        });
+        
+        function stripeCheckout() {
+            handler.open({
+                name: 'Ecommerce App',
+                description: vm.watches.length + ' watches',
+                zipCode: true,
+                amount: vm.totalPrice * 100
+            });
+        }
 
         function addToCart(item) {
             function success(response) {

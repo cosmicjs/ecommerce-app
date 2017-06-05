@@ -5,7 +5,7 @@
         .module('main')
         .controller('CartCtrl', CartCtrl);
 
-    function CartCtrl(CartService, WatchService, Notification, $log, MEDIA_URL, $state) {
+    function CartCtrl(CartService, WatchService, Notification, STRIPE_KEY, $log) {
         var vm = this;
 
         vm.addToCart = addToCart;
@@ -13,12 +13,34 @@
         vm.hasInCart = hasInCart;
         vm.removeFromCart = removeFromCart;
         vm.completeOrder = completeOrder;
+        vm.stripeCheckout = stripeCheckout;
 
         vm.cart = {};
         vm.cart.order = {};
         vm.watches = [];
         vm.totalPrice = 0;
         vm.orderForm = null;
+
+        var handler = StripeCheckout.configure({
+            key: STRIPE_KEY,
+            image: 'https://cosmicjs.com/images/logo.svg',
+            locale: 'auto',
+            token: function(token) {
+            }
+        });
+
+        window.addEventListener('popstate', function() {
+            handler.close();
+        });
+        
+        function stripeCheckout() {
+            handler.open({
+                name: 'Ecommerce App',
+                description: vm.watches.length + ' watches',
+                zipCode: true,
+                amount: vm.totalPrice * 100
+            });
+        }
 
         function addToCart(item) {
             function success(response) {
