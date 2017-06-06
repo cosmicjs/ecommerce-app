@@ -16,6 +16,7 @@
             'flow',
             'angular-loading-bar',
             'hl.sticky',
+            'stripe.checkout',
  
             'watch',
             'cart',
@@ -26,9 +27,13 @@
         .config(config)
         .run(run);
 
-    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'NotificationProvider'];
-    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, NotificationProvider) {
+    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'NotificationProvider', 'StripeCheckoutProvider', 'STRIPE_KEY'];
+    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, NotificationProvider, StripeCheckoutProvider, STRIPE_KEY) {
         cfpLoadingBarProvider.includeSpinner = false;
+
+        StripeCheckoutProvider.defaults({
+            key: STRIPE_KEY
+        });
 
         NotificationProvider.setOptions({
             startTop: 25,
@@ -63,6 +68,10 @@
                 abstract: true,
                 templateUrl: '../views/main.html',
                 controller: 'CartCtrl as cart',
+                resolve: {
+                    // checkout.js isn't fetched until this is resolved.
+                    stripe: StripeCheckoutProvider.load
+                },
                 data: {
                     is_granted: ['ROLE_GUEST']
                 }
@@ -296,7 +305,7 @@
         .module('main')
         .controller('CartCtrl', CartCtrl);
 
-    function CartCtrl(CartService, WatchService, Notification, STRIPE_KEY, $log) {
+    function CartCtrl(CartService, WatchService, $cookies, Notification, STRIPE_KEY, $log, $state, StripeCheckout) {
         var vm = this;
 
         vm.addToCart = addToCart;
@@ -322,7 +331,6 @@
 
         window.addEventListener('popstate', function() {
             handler.close();
-
         });
         
         function stripeCheckout(order) {
@@ -332,8 +340,12 @@
                     description: vm.watches.length + ' watches',
                     zipCode: true,
                     amount: vm.totalPrice * 100
+                }).then(function(result) {
+                    console.log("Order complete!");
+                    completeOrder(order);
+                },function() {
+                    console.log("Stripe Checkout closed without making a sale :(");
                 });
-                completeOrder(order);
             }
         }
 
@@ -358,7 +370,9 @@
             order.watches = vm.watches;
 
             function success(response) {
-
+                $cookies.remove('cart');
+                getCart();
+                $state.go('main.cart.thankYou');
             }
 
             function failed(response) {
@@ -450,8 +464,8 @@
         ])
         .config(config); 
 
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
+    config.$inject = ['$stateProvider', 'StripeCheckoutProvider'];
+    function config($stateProvider, StripeCheckoutProvider) {
  
         $stateProvider
             .state('main.cart', {
@@ -597,12 +611,12 @@
         });  
 })();  
 angular.module("config", [])
-.constant("BUCKET_SLUG", "ecommerce-app")
-.constant("MEDIA_URL", "https://api.cosmicjs.com/v1/ecommerce-app/media")
+.constant("BUCKET_SLUG", "ecommerce")
 .constant("URL", "https://api.cosmicjs.com/v1/")
-.constant("READ_KEY", "")
-.constant("WRITE_KEY", "")
-.constant("STRIPE_KEY", "pk_test_oRv6WcnATRyMqponKKG6QlON");
+.constant("MEDIA_URL", "https://api.cosmicjs.com/v1/ecommerce/media")
+.constant("READ_KEY", "jeWoV272iDKNwCfU2iniaVWP35qEDOohLWPNPuUdDXcE6P6D7M")
+.constant("WRITE_KEY", "05e1ks18jIQrkefSHP6DBQBiYZ32WSAyuTOZxrFGwnRjBQAM57")
+.constant("STRIPE_KEY", "pk_test_6pRNASCoBOKtIshFeQd4XMUh");
 
 (function () {
     'use strict';
@@ -1147,8 +1161,8 @@ angular.module("config", [])
         .module('cart.checkout', [])
         .config(config); 
 
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
+    config.$inject = ['$stateProvider', 'StripeCheckoutProvider'];
+    function config($stateProvider, StripeCheckoutProvider) {
  
         $stateProvider
             .state('main.cart.checkout', {
@@ -1156,6 +1170,14 @@ angular.module("config", [])
                 views: {
                     '@main': {
                         templateUrl: '../views/cart/cart.checkout.html'
+                    }
+                }
+            })
+            .state('main.cart.thankYou', {
+                url: '/thank-you',
+                views: {
+                    '@main': {
+                        templateUrl: '../views/cart/cart.thank-you.html'
                     }
                 }
             });

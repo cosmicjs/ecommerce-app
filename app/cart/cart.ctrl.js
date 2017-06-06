@@ -5,7 +5,7 @@
         .module('main')
         .controller('CartCtrl', CartCtrl);
 
-    function CartCtrl(CartService, WatchService, Notification, STRIPE_KEY, $log) {
+    function CartCtrl(CartService, WatchService, $cookies, Notification, STRIPE_KEY, $log, $state, StripeCheckout) {
         var vm = this;
 
         vm.addToCart = addToCart;
@@ -31,7 +31,6 @@
 
         window.addEventListener('popstate', function() {
             handler.close();
-
         });
         
         function stripeCheckout(order) {
@@ -41,8 +40,12 @@
                     description: vm.watches.length + ' watches',
                     zipCode: true,
                     amount: vm.totalPrice * 100
+                }).then(function(result) {
+                    console.log("Order complete!");
+                    completeOrder(order);
+                },function() {
+                    console.log("Stripe Checkout closed without making a sale :(");
                 });
-                completeOrder(order);
             }
         }
 
@@ -67,7 +70,9 @@
             order.watches = vm.watches;
 
             function success(response) {
-
+                $cookies.remove('cart');
+                getCart();
+                $state.go('main.cart.thankYou');
             }
 
             function failed(response) {
