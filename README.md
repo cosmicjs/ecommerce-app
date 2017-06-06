@@ -2,22 +2,20 @@
 ![Angular JS Ecommerce App](https://cosmicjs.com/uploads/ca5cc070-4ae2-11e7-a6d3-9950c5658967-Screen%20Shot%202017-06-06%20at%201.05.28%20PM.png)
 
 [View a demo here](https://ecommerce-app.cosmicapp.co)
+An Angular JS ecommerce app that allows you to process orders from customers for goods and services.  You can manage inventory in your Cosmic JS Dashboard or in the admin area on the website.
 
-[Sign up for Cosmic JS](https://cosmicjs.com/) to start managing content for your websites and applications faster and easier.
 ### Get Started
+[Sign up for Cosmic JS](https://cosmicjs.com/) to start managing content for your websites and applications faster and easier.
 
-
-#### Running server:
+#### Building and running the server (performs a gulp command prestart):
 ```
 npm install
 COSMIC_BUCKET=your-bucket-slug READ_KEY=your-read-key WRITE_KEY=your-write-key STRIPE_KEY=your-stripe-key npm start
 ```
-
-#### Building Ecommerce App:
-```
-gulp
-```
 Then go to [http://localhost:3000](http://localhost:3000)
+
+### Admin area
+Go to http://localhost:3000/#/login to manage your products and orders.
 
 ### In Production
 #### Deploy to Cosmic JS
