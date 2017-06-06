@@ -8,7 +8,11 @@
 ```
 npm install
 
-COSMIC_BUCKET=your-bucket-slug READ_KEY=your-read-key WRITE_KEY=your-write-key npm start
+COSMIC_BUCKET=your-bucket-slug 
+READ_KEY=your-read-key 
+WRITE_KEY=your-write-key 
+STRIPE_KEY=your-stripe-key 
+npm start
 ```
 
 #### Building Ecommerce App:
