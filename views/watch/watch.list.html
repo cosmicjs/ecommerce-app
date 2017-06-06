@@ -24,7 +24,7 @@
 
             <div class="col-sm-4 col-lg-4 col-md-4" ng-repeat="watch in vm.watches">
                 <div class="thumbnail" ng-init="watch.metadata.category">
-                    <img ng-src="{{watch.metadata.images.image_1.url}}" alt="">
+                    <a ui-sref="main.watch.profile({slug: watch.slug})"><img ng-src="{{watch.metadata.images.image_1.url}}" alt=""></a>
                     <div class="caption">
                         <h4 class="pull-right">${{watch.metadata.price}}</h4>
                         <h4><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></h4>
