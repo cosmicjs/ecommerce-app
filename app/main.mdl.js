@@ -16,6 +16,7 @@
             'flow',
             'angular-loading-bar',
             'hl.sticky',
+            'stripe.checkout',
  
             'watch',
             'cart',
@@ -26,9 +27,13 @@
         .config(config)
         .run(run);
 
-    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'NotificationProvider'];
-    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, NotificationProvider) {
+    config.$inject = ['$stateProvider', '$urlRouterProvider', 'cfpLoadingBarProvider', 'NotificationProvider', 'StripeCheckoutProvider', 'STRIPE_KEY'];
+    function config($stateProvider, $urlRouterProvider, cfpLoadingBarProvider, NotificationProvider, StripeCheckoutProvider, STRIPE_KEY) {
         cfpLoadingBarProvider.includeSpinner = false;
+
+        StripeCheckoutProvider.defaults({
+            key: STRIPE_KEY
+        });
 
         NotificationProvider.setOptions({
             startTop: 25,
@@ -63,6 +68,10 @@
                 abstract: true,
                 templateUrl: '../views/main.html',
                 controller: 'CartCtrl as cart',
+                resolve: {
+                    // checkout.js isn't fetched until this is resolved.
+                    stripe: StripeCheckoutProvider.load
+                },
                 data: {
                     is_granted: ['ROLE_GUEST']
                 }

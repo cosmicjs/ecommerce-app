@@ -1,28 +1,28 @@
 <div class="row">
     <div class="col-md-12">
         <div class="row">
-
-            <table class="table table-striped">
-                <tr>
-                    <th>#</th>
-                    <th>Image</th>
-                    <th>Model</th>
-                    <th>Brand</th>
-                    <th>Price</th>
-                    <th></th>
-                </tr>
-                <tr ng-repeat="watch in cart.watches">
-                    <td>{{$index + 1}}</td>
-                    <td><img ng-src="{{watch.metadata.images.image_1.url}}" width="100"></td>
-                    <td><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></td>
-                    <td>{{watch.metadata.brand}}</td>
-                    <td><i class="fa fa-dollar"></i> {{watch.metadata.price}}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" ng-click="cart.removeFromCart(watch._id)"><i class="fa fa-remove"></i></button>
-                    </td>
-                </tr>
-            </table>
-
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tr>
+                        <th>#</th>
+                        <th>Image</th>
+                        <th>Model</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th></th>
+                    </tr>
+                    <tr ng-repeat="watch in cart.watches">
+                        <td>{{$index + 1}}</td>
+                        <td><img ng-src="{{watch.metadata.images.image_1.url}}" width="100"></td>
+                        <td><a ui-sref="main.watch.profile({slug: watch.slug})">{{watch.title}}</a></td>
+                        <td>{{watch.metadata.brand}}</td>
+                        <td><i class="fa fa-dollar"></i> {{watch.metadata.price}}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" ng-click="cart.removeFromCart(watch._id)"><i class="fa fa-remove"></i></button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
         <div class="row">
             <div class="col-md-6">

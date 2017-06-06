@@ -49,3 +49,23 @@
 footer {
     margin: 50px 0;
 }
+
+.cart-toggle {
+    margin: 5px;
+}
+
+.thank-you i{
+    color: #4cae4c;
+}
+
+.thank-you h1{
+    font-weight: bold;
+}
+
+input.ng-invalid {
+    border: 1px solid #a94442;
+}
+
+input.ng-invalid-required {
+    border: 1px solid #ccc;
+}

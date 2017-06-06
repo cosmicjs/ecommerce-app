@@ -7,8 +7,8 @@
         ])
         .config(config); 
 
-    config.$inject = ['$stateProvider', '$urlRouterProvider'];
-    function config($stateProvider, $urlRouterProvider) {
+    config.$inject = ['$stateProvider', 'StripeCheckoutProvider'];
+    function config($stateProvider, StripeCheckoutProvider) {
  
         $stateProvider
             .state('main.cart', {
