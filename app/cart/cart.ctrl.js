@@ -68,7 +68,6 @@
 
             function success(response) {
 
-
             }
 
             function failed(response) {

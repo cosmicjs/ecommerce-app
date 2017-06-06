@@ -24,7 +24,7 @@
     "gulp-npm-script-sync": "^1.1.0"
   },
   "scripts": {
-    "postinstall": "bower install && gulp config && gulp js",
+    "prestart": "bower install && gulp config && gulp js",
     "start": "npm run production",
     "production": "node app-server.js",
     "gulp": "gulp"
