@@ -1,5 +1,5 @@
 # Angular JS Ecommerce App
-![Angular JS Ecommerce App](https://cosmicjs.com/uploads/dad37ae0-4ab8-11e7-a953-452321056c59-angular-js-ecommerce-app.png)
+![Angular JS Ecommerce App](https://cosmicjs.com/uploads/ca5cc070-4ae2-11e7-a6d3-9950c5658967-Screen%20Shot%202017-06-06%20at%201.05.28%20PM.png)
 
 [View a demo here](http://ecommerce.cosmicapp.co/)
 
