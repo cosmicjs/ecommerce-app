@@ -20,4 +20,7 @@ gulp
 Then go to [http://localhost:3000](http://localhost:3000)
 
 #### Deploy to Cosmic JS
-Deploy this app to Comsic JS in a few clicks.  After you deploy go to Deploy Web App > Set Environment Variables to add your STRIPE_KEY environment variable.
+[Deploy this app to Comsic JS in a few clicks.](https://cosmicjs.com/apps/ecommerce-app)
+
+##### Add Stripe Key
+After you deploy go to Deploy Web App > Set Environment Variables to add your STRIPE_KEY environment variable.
