@@ -1,7 +1,7 @@
 # Angular JS Ecommerce App
 ![Angular JS Ecommerce App](https://cosmicjs.com/uploads/ca5cc070-4ae2-11e7-a6d3-9950c5658967-Screen%20Shot%202017-06-06%20at%201.05.28%20PM.png)
 
-[View a demo here](http://ecommerce.cosmicapp.co/)
+[View a demo here](https://ecommerce-app.cosmicapp.co)
 
 [Sign up for Cosmic JS](https://cosmicjs.com/) to start managing content for your websites and applications faster and easier.
 ### Get Started
