@@ -28,5 +28,5 @@ Go to http://localhost:3000/#/login to manage your products and orders.
 [Deploy this app to Cosmic JS in a few clicks.](https://cosmicjs.com/apps/ecommerce-app)
 
 #### Add Stripe Keys
-After you deploy go to Deploy Web App > Set Environment Variables to add your STRIPE_KEY and STRIPE_SECRET environment variables.
+After you deploy go to Deploy Web App > Set Environment Variables to add your STRIPE_KEY and STRIPE_SECRET environment variables.  Screenshot below:
 ![Add Env Vars](https://cosmicjs.com/uploads/f1066a70-4b17-11e7-937c-a1254a7b329a-Screen%20Shot%202017-06-06%20at%207.26.01%20PM.png)
