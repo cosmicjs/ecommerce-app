@@ -15,7 +15,7 @@ An Angular JS ecommerce app that allows you to:
 git clone https://github.com/cosmicjs/ecommerce-app
 cd ecommerce-app
 npm install
-COSMIC_BUCKET=your-bucket-slug READ_KEY=your-read-key WRITE_KEY=your-write-key STRIPE_KEY=your-stripe-key npm start
+COSMIC_BUCKET=your-bucket-slug READ_KEY=your-read-key WRITE_KEY=your-write-key STRIPE_KEY=your-public-key STRIPE_SECRET=your-private-key npm start
 ```
 Then go to [http://localhost:3000](http://localhost:3000)
 
