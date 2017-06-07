@@ -13,21 +13,18 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 })
 app.post('/charge', (req, res) => {
-    var token = req.body.stripeToken;
-
-    // Charge the user's card:
-    var charge = stripe.charges.create({
-      amount: req.body.amount,
-      currency: "usd",
-      description: req.body.amount.description,
-      metadata: req.body.order,
-      source: token,
-    }, function(err, charge) {
-        res.send(charge);
-    });
-
-
-})
+  var token = req.body.stripeToken;
+  // Charge the user's card:
+  var charge = stripe.charges.create({
+    amount: req.body.amount,
+    currency: "usd",
+    description: req.body.amount.description,
+    metadata: req.body.order,
+    source: token,
+  }, function(err, charge) {
+      res.send(charge);
+  });
+});
 http.listen(app.get('port'), () => {
   console.log('Ecommerce App listening on ' + app.get('port'))
 })
