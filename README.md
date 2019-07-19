@@ -34,7 +34,7 @@ More information can be found on the [Now website](https://zeit.co/now).
 Deplow to Heroku from the root folder:
 ```
 heroku create
-gitpush heroku master
+git push heroku master
 ```
 More information can be found on the [Heroku website](https://devcenter.heroku.com/articles/deploying-nodejs).
 #### Add Stripe Keys
