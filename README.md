@@ -24,9 +24,18 @@ Then go to [http://localhost:3000](http://localhost:3000)
 Go to http://localhost:3000/#/login to manage your products and orders.
 
 ### In Production
-#### Deploy to Cosmic JS
-[Deploy this app to Cosmic JS in a few clicks.](https://cosmicjs.com/apps/ecommerce-app)
+#### Deploy to Now or Heroku
+Deplow to Now from the root folder:
+```
+now
+```
+More information can be found on the [Now website](https://zeit.co/now).
 
+Deplow to Heroku from the root folder:
+```
+heroku create
+gitpush heroku master
+```
+More information can be found on the [Heroku website](https://devcenter.heroku.com/articles/deploying-nodejs).
 #### Add Stripe Keys
-After you deploy go to Deploy Web App > Set Environment Variables to add your STRIPE_KEY and STRIPE_SECRET environment variables.  Screenshot below:
-![Add Env Vars](https://cosmicjs.com/uploads/f1066a70-4b17-11e7-937c-a1254a7b329a-Screen%20Shot%202017-06-06%20at%207.26.01%20PM.png)
+After you deploy go to the resective area in either service to add your `STRIPE_KEY` and `STRIPE_SECRET` environment variables.
